@@ -26,13 +26,19 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({context}: LoaderFunctionArgs) {
-  const [{collections}] = await Promise.all([
+  const [{collections}, {products}] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
     // Add other queries here, so that they are loaded in parallel
+    context.storefront.query(ALL_PRODUCTS_QUERY, {
+      variables: {
+        first: 10,
+      },
+    }),
   ]);
 
   return {
     featuredCollection: collections.nodes[0],
+    products: products.nodes,
   };
 }
 
@@ -57,10 +63,16 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  console.log(data);
   return (
     <div className="home">
       <FeaturedCollection collection={data.featuredCollection} />
       <RecommendedProducts products={data.recommendedProducts} />
+      <ul>
+        {data.products.map((product, i) => (
+          <li key={i}>{product.title}</li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -180,3 +192,29 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
     }
   }
 ` as const;
+
+const ALL_PRODUCTS_QUERY = `#graphql
+  query getProducts($first: Int) {
+    products(first: $first) {
+        nodes {
+          description
+          featuredImage {
+            altText
+            id
+            url
+            height
+            width
+          }
+          handle
+          id
+          title
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+  }
+`;
