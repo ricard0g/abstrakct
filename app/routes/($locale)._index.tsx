@@ -6,6 +6,9 @@ import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
+import SimpleExperience from '~/components/SimpleExperience';
+
+export type IndexLoader = typeof loader;
 
 export const meta: MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -28,7 +31,6 @@ export async function loader(args: LoaderFunctionArgs) {
 async function loadCriticalData({context}: LoaderFunctionArgs) {
   const [{collections}, {products}] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
     context.storefront.query(ALL_PRODUCTS_QUERY, {
       variables: {
         first: 10,
@@ -63,16 +65,9 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  console.log(data);
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
-      <ul>
-        {data.products.map((product, i) => (
-          <li key={i}>{product.title}</li>
-        ))}
-      </ul>
+      <SimpleExperience />
     </div>
   );
 }
