@@ -33,7 +33,7 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
     context.storefront.query(FEATURED_COLLECTION_QUERY),
     context.storefront.query(ALL_PRODUCTS_QUERY, {
       variables: {
-        first: 10,
+        first: 12,
       },
     }),
   ]);

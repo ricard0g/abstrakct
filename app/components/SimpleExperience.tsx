@@ -25,28 +25,28 @@ function ProductGrid({
   products: Awaited<ReturnType<IndexLoader>>['products'];
 }) {
   return (
-    <div className="grid grid-cols-2 auto-rows-auto gap-4 place-items-center">
-      {products.map((product) => {
-        const isWideImage = aspectRatio(product.featuredImage?.width ?? 0, product.featuredImage?.height ?? 0) > 1.5;
-        
+    <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
+      {products.map((product: any, i: number) => {
+        const isWideImage =
+          aspectRatio(
+            product.featuredImage?.width ?? 0,
+            product.featuredImage?.height ?? 0,
+          ) > 1;
+
         return (
           <div
-            className={`${isWideImage ? 'col-span-2' : 'col-span-1'}`}
+            className={`relative h-auto md:h-auto col-span-2 ${isWideImage ? 'md:col-span-2' : 'md:col-span-1'}`}
             key={product.id}
           >
-            <figure>
+            <figure className="w-full h-full m-0">
               {product.featuredImage && (
-                <Image 
-                  data={product.featuredImage} 
-                  sizes={isWideImage 
-                    ? "(max-width: 768px) 100vw, 100vw" 
-                    : "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  }
+                <Image
+                  data={product.featuredImage}
                   loading="lazy"
-                  className="w-full h-auto object-cover"
+                  className="max-w-full w-full max-h-full h-auto object-cover"
                 />
               )}
-              <figcaption>
+              <figcaption className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0">
                 <h2>{product.title}</h2>
                 <p>{product.description}</p>
                 <Money data={product.priceRange.minVariantPrice} />
