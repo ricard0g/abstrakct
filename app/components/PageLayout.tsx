@@ -14,6 +14,7 @@ import {
   SearchFormPredictive,
 } from '~/components/SearchFormPredictive';
 import {SearchResultsPredictive} from '~/components/SearchResultsPredictive';
+import Cursor from '~/components/Cursor';
 
 interface PageLayoutProps {
   cart: Promise<CartApiQueryFragment | null>;
@@ -51,6 +52,7 @@ export function PageLayout({
         header={header}
         publicStoreDomain={publicStoreDomain}
       />
+      <Cursor />
     </Aside.Provider>
   );
 }
