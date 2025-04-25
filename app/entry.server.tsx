@@ -16,6 +16,12 @@ export default async function handleRequest(
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
+    styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+    fontSrc: [
+      "'self'",
+      'https://fonts.gstatic.com',
+      'https://fonts.googleapis.com',
+    ],
   });
 
   const body = await renderToReadableStream(
