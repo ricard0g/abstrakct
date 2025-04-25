@@ -2,13 +2,7 @@ import {useEffect, useState} from 'react';
 
 export default function Cursor() {
   const [position, setPosition] = useState({x: -100, y: -100});
-  const [trailPositions, setTrailPositions] = useState<
-    Array<{x: number; y: number}>
-  >([]);
   const [isHovering, setIsHovering] = useState(false);
-  const [currentHoverItem, setCurrentHoverItem] = useState<Element | null>(
-    null,
-  );
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
@@ -19,15 +13,14 @@ export default function Cursor() {
     const handleMouseOver = (e: Event) => {
       const target = e.target as HTMLElement;
       const productItem = target.closest('.grid > div');
-      
+
       if (!productItem) return;
-      
+
       setIsHovering(true);
-      setCurrentHoverItem(productItem as Element);
-      
+
       // Add scale effect
       productItem.classList.add('hover-scale');
-      
+
       // Show the figcaption
       const figcaption = productItem.querySelector('figcaption');
       if (figcaption instanceof HTMLElement) {
@@ -35,19 +28,18 @@ export default function Cursor() {
         figcaption.style.transform = 'translate(-50%, -50%) scale(1)';
       }
     };
-    
+
     const handleMouseOut = (e: Event) => {
       const target = e.target as HTMLElement;
       const productItem = target.closest('.grid > div');
-      
+
       if (!productItem) return;
-      
+
       setIsHovering(false);
-      setCurrentHoverItem(null);
-      
+
       // Remove scale effect
       productItem.classList.remove('hover-scale');
-      
+
       // Hide the figcaption
       const figcaption = productItem.querySelector('figcaption');
       if (figcaption instanceof HTMLElement) {
@@ -58,31 +50,7 @@ export default function Cursor() {
 
     // Find the grid parent element
     const grid = document.querySelector('.grid');
-    
-    // Add styles for the hover effect
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .hover-scale {
-        transform: scale(1.02);
-        transition: transform 0.3s ease;
-      }
-      
-      .grid > div {
-        transition: transform 0.3s ease;
-      }
-      
-      .grid > div figcaption {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.95);
-        background-color: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 1rem;
-        border-radius: 4px;
-      }
-    `;
-    document.head.appendChild(style);
-    
+
     // Add event listeners to the grid container using delegation
     if (grid) {
       grid.addEventListener('mouseover', handleMouseOver);
@@ -93,29 +61,14 @@ export default function Cursor() {
 
     return () => {
       window.removeEventListener('mousemove', moveCursor);
-      
+
       // Cleanup event listeners from grid
       if (grid) {
         grid.removeEventListener('mouseover', handleMouseOver);
         grid.removeEventListener('mouseout', handleMouseOut);
       }
-      
-      // Clean up the style element
-      document.head.removeChild(style);
     };
   }, []);
-
-  // Update trail positions when main cursor position changes
-  useEffect(() => {
-    // Only start the trail once the cursor is on screen
-    if (position.x === -100 && position.y === -100) return;
-
-    // Add current position to the trail and limit to 5 positions
-    setTrailPositions((prev) => {
-      const newPositions = [position, ...prev];
-      return newPositions.slice(0, 5);
-    });
-  }, [position]);
 
   // Dynamic cursor styles based on hovering state
   const ringSize = isHovering ? '80px' : '40px';
@@ -130,7 +83,6 @@ export default function Cursor() {
 
   return (
     <>
-      {/* Main cursor elements */}
       <div
         className="fixed pointer-events-none z-50 rounded-full border mix-blend-difference"
         style={{
@@ -157,43 +109,6 @@ export default function Cursor() {
           transition,
         }}
       />
-
-      {/* Trail elements */}
-      {trailPositions.map((pos, index) => (
-        <div
-          key={index}
-          className="fixed pointer-events-none z-40 rounded-full"
-          style={{
-            left: `${pos.x}px`,
-            top: `${pos.y}px`,
-            width: `${4 - index * 0.7}px`,
-            height: `${4 - index * 0.7}px`,
-            backgroundColor: '#222',
-            opacity: 0.3 - index * 0.05,
-            transform: 'translate(-50%, -50%)',
-          }}
-        />
-      ))}
     </>
   );
-}
-
-function eventDelegationHover(e: MouseEvent) {
-  const grid = document.querySelector('.grid') as HTMLElement;
-
-  grid.addEventListener('mouseover', (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-
-    if (target.closest('.grid > div') || target.matches('.grid > div')) {
-      target.classList.add('hover-scale');
-    }
-  });
-
-  grid.addEventListener('mouseout', (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-
-    if (target.closest('.grid > div') || target.matches('.grid > div')) {
-      target.classList.remove('hover-scale');
-    }
-  });
 }
