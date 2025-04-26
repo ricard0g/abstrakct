@@ -509,23 +509,6 @@ button.reset:hover:not(:has(> *)) {
   display: inline-block;
 }
 
-.hover-scale {
-  transform: scale(1.02);
-  transition: transform 0.3s ease;
-}
-
-.grid > div {
-  transition: transform 0.3s ease;
-}
-
-.grid > div figcaption {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.95);
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 1rem;
-  border-radius: 4px;
+a {
+  cursor: none !important;
 }

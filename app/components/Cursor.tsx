@@ -1,74 +1,75 @@
 import {useEffect, useState} from 'react';
+import {useLocation} from '@remix-run/react';
 
 export default function Cursor() {
   const [position, setPosition] = useState({x: -100, y: -100});
   const [isHovering, setIsHovering] = useState(false);
+  const [isLink, setIsLink] = useState(false);
+  const location = useLocation();
+
+  // Reset cursor state on route changes
+  useEffect(() => {
+    setIsHovering(false);
+    setIsLink(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const moveCursor = (e: MouseEvent) => {
       setPosition({x: e.clientX, y: e.clientY});
     };
 
+    // Check if element is clickable
+    const isClickable = (element: HTMLElement | null): boolean => {
+      if (!element) return false;
+      
+      return (
+        element.tagName === 'A' ||
+        element.tagName === 'BUTTON' ||
+        element.getAttribute('role') === 'button' ||
+        !!element.closest('a') ||
+        !!element.closest('button') ||
+        !!element.closest('[role="button"]') ||
+        element.classList.contains('grid > div') ||
+        !!element.closest('.grid > div')
+      );
+    };
+
     // Event delegation handlers
-    const handleMouseOver = (e: Event) => {
+    const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const productItem = target.closest('.grid > div');
-
-      if (!productItem) return;
-
-      setIsHovering(true);
-
-      // Add scale effect
-      productItem.classList.add('hover-scale');
-
-      // Show the figcaption
-      const figcaption = productItem.querySelector('figcaption');
-      if (figcaption instanceof HTMLElement) {
-        figcaption.style.opacity = '1';
-        figcaption.style.transform = 'translate(-50%, -50%) scale(1)';
+      
+      if (isClickable(target)) {
+        setIsHovering(true);
       }
     };
 
-    const handleMouseOut = (e: Event) => {
+    const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const productItem = target.closest('.grid > div');
-
-      if (!productItem) return;
-
-      setIsHovering(false);
-
-      // Remove scale effect
-      productItem.classList.remove('hover-scale');
-
-      // Hide the figcaption
-      const figcaption = productItem.querySelector('figcaption');
-      if (figcaption instanceof HTMLElement) {
-        figcaption.style.opacity = '0';
-        figcaption.style.transform = 'translate(-50%, -50%) scale(0.95)';
+      
+      if (isClickable(target)) {
+        setIsHovering(false);
       }
     };
 
-    // Find the grid parent element
-    const grid = document.querySelector('.grid');
+    // Check for links - triggered on any mouse movement
+    const checkForLinks = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      setIsLink(isClickable(target));
+    };
 
-    // Add event listeners to the grid container using delegation
-    if (grid) {
-      grid.addEventListener('mouseover', handleMouseOver);
-      grid.addEventListener('mouseout', handleMouseOut);
-    }
-
+    // Instead of just finding grid, add global event listeners
     window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('mousemove', checkForLinks);
+    window.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener('mouseout', handleMouseOut);
 
     return () => {
       window.removeEventListener('mousemove', moveCursor);
-
-      // Cleanup event listeners from grid
-      if (grid) {
-        grid.removeEventListener('mouseover', handleMouseOver);
-        grid.removeEventListener('mouseout', handleMouseOut);
-      }
+      window.removeEventListener('mousemove', checkForLinks);
+      window.removeEventListener('mouseover', handleMouseOver);
+      window.removeEventListener('mouseout', handleMouseOut);
     };
-  }, []);
+  }, [location.pathname]);
 
   // Dynamic cursor styles based on hovering state
   const ringSize = isHovering ? '80px' : '40px';
@@ -79,23 +80,32 @@ export default function Cursor() {
   const dotBgColor = isHovering ? '#111' : '#333';
   const ringBorderColor = isHovering ? '#333' : '#222';
   const transition =
-    'width 0.3s ease, height 0.3s ease, background-color 0.3s ease';
+    'width 0.3s ease, height 0.3s ease, background-color 0.3s ease, transform 0.3s ease';
 
   return (
     <>
       <div
-        className="fixed pointer-events-none z-50 rounded-full border mix-blend-difference"
+        className={`fixed pointer-events-none z-50 rounded-full border mix-blend-difference ${isLink ? 'cursor-link' : ''}`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
           width: ringSize,
           height: ringSize,
-          backgroundColor: ringBgColor,
-          borderColor: ringBorderColor,
-          transform: 'translate(-50%, -50%)',
+          backgroundColor: isLink ? 'rgba(255, 255, 255, 0.2)' : ringBgColor,
+          borderColor: isLink ? '#fff' : ringBorderColor,
+          borderWidth: isLink ? '2px' : '1px',
+          transform: isLink 
+            ? 'translate(-50%, -50%) scale(1.1)' 
+            : 'translate(-50%, -50%)',
           transition,
         }}
-      />
+      >
+        {isLink && (
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-light text-white">
+            Click
+          </div>
+        )}
+      </div>
 
       <div
         className="fixed pointer-events-none z-50 rounded-full"
@@ -104,7 +114,7 @@ export default function Cursor() {
           top: `${position.y}px`,
           width: dotSize,
           height: dotSize,
-          backgroundColor: dotBgColor,
+          backgroundColor: isLink ? '#fff' : dotBgColor,
           transform: 'translate(-50%, -50%)',
           transition,
         }}
