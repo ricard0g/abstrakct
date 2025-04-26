@@ -100,11 +100,11 @@ export default function Cursor() {
           transition,
         }}
       >
-        {isLink && (
+        {/* {isLink && (
           <div className="absolute inset-0 flex items-center justify-center text-xs font-light text-white">
             Click
           </div>
-        )}
+        )} */}
       </div>
 
       <div

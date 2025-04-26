@@ -24,7 +24,7 @@ export default function ProductGrid({
 
         return (
           <div
-            className={`relative h-auto md:h-auto col-span-2 ${isWideImage ? 'md:col-span-2' : 'md:col-span-1'}`}
+            className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${isWideImage ? 'md:col-span-2' : 'md:col-span-1'}`}
             key={product.id}
           >
             <figure className=" w-full h-full m-0 relative">
@@ -33,7 +33,7 @@ export default function ProductGrid({
                   <Image
                     data={product.featuredImage}
                     loading="lazy"
-                    className="max-w-full w-full max-h-full h-auto object-cover"
+                    className="max-w-full w-full max-h-full h-auto rounded-lg object-cover"
                   />
                 )}
                 <ParallaxCaption product={product} />
@@ -73,7 +73,7 @@ function ParallaxCaption({product}: {product: any}) {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0"
+      className="absolute inset-0 hover:rounded-lg rounded-lg"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseMove={handleMouseMove}
