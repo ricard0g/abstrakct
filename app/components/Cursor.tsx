@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import {useLocation} from '@remix-run/react';
 
 export default function Cursor() {
@@ -21,7 +21,7 @@ export default function Cursor() {
     // Check if element is clickable
     const isClickable = (element: HTMLElement | null): boolean => {
       if (!element) return false;
-      
+
       return (
         element.tagName === 'A' ||
         element.tagName === 'BUTTON' ||
@@ -37,7 +37,7 @@ export default function Cursor() {
     // Event delegation handlers
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
+
       if (isClickable(target)) {
         setIsHovering(true);
       }
@@ -45,7 +45,7 @@ export default function Cursor() {
 
     const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      
+
       if (isClickable(target)) {
         setIsHovering(false);
       }
@@ -85,7 +85,7 @@ export default function Cursor() {
   return (
     <>
       <div
-        className={`fixed pointer-events-none z-50 rounded-full border mix-blend-difference ${isLink ? 'cursor-link' : ''}`}
+        className={`hidden md:block fixed pointer-events-none z-50 rounded-full border mix-blend-difference ${isLink ? 'cursor-link' : ''}`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -94,21 +94,15 @@ export default function Cursor() {
           backgroundColor: isLink ? 'rgba(255, 255, 255, 0.2)' : ringBgColor,
           borderColor: isLink ? '#fff' : ringBorderColor,
           borderWidth: isLink ? '2px' : '1px',
-          transform: isLink 
-            ? 'translate(-50%, -50%) scale(1.1)' 
+          transform: isLink
+            ? 'translate(-50%, -50%) scale(1.1)'
             : 'translate(-50%, -50%)',
           transition,
         }}
-      >
-        {/* {isLink && (
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-light text-white">
-            Click
-          </div>
-        )} */}
-      </div>
+      ></div>
 
       <div
-        className="fixed pointer-events-none z-50 rounded-full"
+        className="hidden md:block fixed pointer-events-none z-50 rounded-full"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,

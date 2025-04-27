@@ -1,7 +1,7 @@
 import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
-import {useState, useRef} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {useSpring, animated} from '@react-spring/web';
 
 function aspectRatio(width: number, height: number) {
@@ -48,11 +48,27 @@ export default function ProductGrid({
 
 function ParallaxCaption({product}: {product: any}) {
   const [hovered, setHovered] = useState(false);
+  const [mobileVisible, setMobileVisible] = useState(false);
   const [coords, setCoords] = useState({x: 0, y: 0});
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || isMobile) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     // Calculate center-relative coordinates (-1 to 1 range)
@@ -61,14 +77,25 @@ function ParallaxCaption({product}: {product: any}) {
     setCoords({x, y});
   };
 
-  // Spring for the caption
-  const captionSpring = useSpring({
+  // Desktop spring with parallax effect
+  const desktopCaptionSpring = useSpring({
     opacity: hovered ? 1 : 0,
     transform: hovered
       ? `perspective(800px) rotateX(${-coords.y * 20}deg) rotateY(${coords.x * 20}deg) translateZ(30px)`
       : 'perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
     config: {mass: 1, tension: 280, friction: 60},
   });
+
+  // Mobile spring without parallax effect - just fade in/out
+  const mobileCaptionSpring = useSpring({
+    opacity: mobileVisible ? 1 : 0,
+    config: {mass: 1, tension: 280, friction: 60},
+  });
+
+  const toggleMobileCaption = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMobileVisible(!mobileVisible);
+  };
 
   return (
     <div
@@ -78,9 +105,10 @@ function ParallaxCaption({product}: {product: any}) {
       onMouseLeave={() => setHovered(false)}
       onMouseMove={handleMouseMove}
     >
+      {/* Desktop caption with parallax effect */}
       <animated.figcaption
-        style={captionSpring}
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5"
+        style={desktopCaptionSpring}
+        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:block hidden z-10"
       >
         <h2 className="text-center text-balance font-display font-extralight text-white">
           {product.title}
@@ -91,6 +119,29 @@ function ParallaxCaption({product}: {product: any}) {
           data={product.priceRange.minVariantPrice}
         />
       </animated.figcaption>
+
+      {/* Mobile caption without parallax effect */}
+      <animated.figcaption
+        style={mobileCaptionSpring}
+        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:hidden block z-10"
+      >
+        <h2 className="text-center text-balance font-display font-extralight text-white">
+          {product.title}
+        </h2>
+        <ProductDescription description={product.description} />
+        <Money
+          className="w-fit mx-auto my-3 py-1 px-2 font-thin text-white bg-gray-500/80 rounded-md"
+          data={product.priceRange.minVariantPrice}
+        />
+      </animated.figcaption>
+
+      {/* Mobile-only button to show caption */}
+      <button
+        onClick={toggleMobileCaption}
+        className="md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-1 text-xs uppercase tracking-wider font-medium bg-black/40 text-white/90 hover:bg-black/60 hover:text-white rounded-full border border-white/20 transition-all duration-200 backdrop-blur-sm z-20"
+      >
+        {mobileVisible ? 'Hide Details' : 'Show Details'}
+      </button>
     </div>
   );
 }
