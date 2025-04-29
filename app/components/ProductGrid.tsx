@@ -52,16 +52,16 @@ function ParallaxCaption({product}: {product: any}) {
   const [coords, setCoords] = useState({x: 0, y: 0});
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Check if device is mobile
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => {
       window.removeEventListener('resize', checkMobile);
     };
@@ -113,7 +113,10 @@ function ParallaxCaption({product}: {product: any}) {
         <h2 className="text-center text-balance font-display font-extralight text-white">
           {product.title}
         </h2>
-        <ProductDescription description={product.description} />
+        <ProductDescription
+          isMobile={isMobile}
+          description={product.description}
+        />
         <Money
           className="w-fit mx-auto my-3 py-1 px-2 font-thin text-white bg-gray-500/80 rounded-md"
           data={product.priceRange.minVariantPrice}
@@ -128,7 +131,10 @@ function ParallaxCaption({product}: {product: any}) {
         <h2 className="text-center text-balance font-display font-extralight text-white">
           {product.title}
         </h2>
-        <ProductDescription description={product.description} />
+        <ProductDescription
+          isMobile={isMobile}
+          description={product.description}
+        />
         <Money
           className="w-fit mx-auto my-3 py-1 px-2 font-thin text-white bg-gray-500/80 rounded-md"
           data={product.priceRange.minVariantPrice}
@@ -146,13 +152,19 @@ function ParallaxCaption({product}: {product: any}) {
   );
 }
 
-function ProductDescription({description}: {description: string}) {
+function ProductDescription({
+  description,
+  isMobile,
+}: {
+  description: string;
+  isMobile: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div className="relative">
       <div
-        className={`relative mx-auto overflow-hidden transition-all duration-500 ease-linear ${expanded ? 'max-h-72 overflow-scroll' : 'max-h-24'}`}
+        className={`relative mx-auto transition-all duration-500 ease-linear overflow-scroll md:overflow-hidden ${expanded ? 'max-h-72 overflow-scroll' : 'max-h-24'}`}
       >
         <p className="text-center text-pretty text-white/90">{description}</p>
         {!expanded && (
@@ -165,15 +177,17 @@ function ProductDescription({description}: {description: string}) {
           ></div>
         )}
       </div>
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          setExpanded(!expanded);
-        }}
-        className="mt-3 px-4 py-1 text-xs uppercase tracking-wider font-medium bg-black/40 text-white/90 hover:bg-black/60 hover:text-white rounded-full border border-white/20 transition-all duration-200 backdrop-blur-sm block mx-auto cursor-none"
-      >
-        {expanded ? 'Show Less' : 'Read More'}
-      </button>
+      {!isMobile && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setExpanded(!expanded);
+          }}
+          className="mt-3 px-4 py-1 text-xs uppercase tracking-wider font-medium bg-black/40 text-white/90 hover:bg-black/60 hover:text-white rounded-full border border-white/20 transition-all duration-200 backdrop-blur-sm block mx-auto cursor-none"
+        >
+          {expanded ? 'Show Less' : 'Read More'}
+        </button>
+      )}
     </div>
   );
 }
