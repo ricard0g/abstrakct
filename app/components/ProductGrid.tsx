@@ -110,7 +110,7 @@ function ParallaxCaption({product}: {product: any}) {
         style={desktopCaptionSpring}
         className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:block hidden z-10"
       >
-        <h2 className="text-center text-balance font-display font-black text-white">
+        <h2 className="text-center text-balance font-display font-bold text-white">
           {product.title}
         </h2>
         <ProductDescription
@@ -203,7 +203,7 @@ function ProductDescription({
       <div
         className={`relative mx-auto transition-all duration-500 ease-linear overflow-scroll md:overflow-hidden ${expanded ? 'max-h-72 overflow-scroll' : 'max-h-24'}`}
       >
-        <p className="text-center text-pretty text-white/90">{description}</p>
+        <p className="text-base text-center text-pretty text-white/90">{description}</p>
         {!expanded && (
           <div
             className="absolute inset-0 mask-luminance"
