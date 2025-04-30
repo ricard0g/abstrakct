@@ -1,8 +1,8 @@
-import {Link} from '@remix-run/react';
+import {Link, useNavigation} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
 import {useState, useRef, useEffect} from 'react';
-import {useSpring, animated} from '@react-spring/web';
+import {useSpring, animated, useInView, easings} from '@react-spring/web';
 
 function aspectRatio(width: number, height: number) {
   return width / height;
@@ -13,36 +13,76 @@ export default function ProductGrid({
 }: {
   products: Awaited<ReturnType<IndexLoader>>['products'];
 }) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-      {products.map((product: any, i: number) => {
-        const isWideImage =
-          aspectRatio(
-            product.featuredImage?.width ?? 0,
-            product.featuredImage?.height ?? 0,
-          ) > 1;
+  const navigation = useNavigation();
 
-        return (
-          <div
-            className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${isWideImage ? 'md:col-span-2' : 'md:col-span-1'}`}
-            key={product.id}
-          >
-            <figure className=" w-full h-full m-0 relative">
-              <Link to={`/products/${product.handle}`} prefetch="intent">
-                {product.featuredImage && (
-                  <Image
-                    data={product.featuredImage}
-                    loading="lazy"
-                    className="max-w-full w-full max-h-full h-auto rounded-lg object-cover"
-                  />
-                )}
-                <ParallaxCaption product={product} />
-              </Link>
-            </figure>
-          </div>
-        );
+  return (
+    <div
+      className={
+        navigation.state === 'loading'
+          ? 'loading'
+          : 'grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center'
+      } /*className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center"*/
+    >
+      {products.map((product: any, i: number) => {
+        return <ProductItem key={product.id} product={product} />;
       })}
     </div>
+  );
+}
+
+function ProductItem({product, key}: {product: any; key: string}) {
+  const [inViewRef, springs] = useInView(
+    () => ({
+      from: {
+        opacity: 0,
+        scale: 0.9,
+        y: 20,
+      },
+      to: {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+      },
+      delay: 500,
+      config: {
+        mass: 2,
+        tension: 120,
+        friction: 14,
+        easing: easings.easeInOutExpo,
+      },
+    }),
+    {
+      amount: 0.2,
+      once: true,
+    },
+  );
+  const isWideImage =
+    aspectRatio(
+      product.featuredImage?.width ?? 0,
+      product.featuredImage?.height ?? 0,
+    ) > 1;
+  return (
+    <animated.div
+      ref={inViewRef}
+      style={springs}
+      className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
+        isWideImage ? 'md:col-span-2' : 'md:col-span-1'
+      }`}
+      key={key}
+    >
+      <figure className=" w-full h-full m-0 relative">
+        <Link to={`/products/${product.handle}`} prefetch="intent">
+          {product.featuredImage && (
+            <Image
+              data={product.featuredImage}
+              loading="lazy"
+              className="max-w-full w-full max-h-full h-auto rounded-lg object-cover"
+            />
+          )}
+          <ParallaxCaption product={product} />
+        </Link>
+      </figure>
+    </animated.div>
   );
 }
 
@@ -203,7 +243,9 @@ function ProductDescription({
       <div
         className={`relative mx-auto transition-all duration-500 ease-linear overflow-scroll md:overflow-hidden ${expanded ? 'max-h-72 overflow-scroll' : 'max-h-24'}`}
       >
-        <p className="text-base text-center text-pretty text-white/90">{description}</p>
+        <p className="text-base text-center text-pretty text-white/90">
+          {description}
+        </p>
         {!expanded && (
           <div
             className="absolute inset-0 mask-luminance"
