@@ -126,9 +126,46 @@ function ParallaxCaption({product}: {product: any}) {
       {/* Mobile caption without parallax effect */}
       <animated.figcaption
         style={mobileCaptionSpring}
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:hidden block z-10"
+        className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm pt-10 md:pt-0 p-4 rounded-lg shadow-lg w-full md:min-w-72 md:max-w-2/5 md:hidden block ${mobileVisible ? 'z-20' : 'z-10'}`}
       >
-        <h2 className="text-center text-balance font-display font-extralight text-white">
+        <button
+          onClick={toggleMobileCaption}
+          className="absolute bg-black/35 rounded-full p-1 top-3 right-3"
+        >
+          <svg
+            width="20px"
+            height="20px"
+            viewBox="-0.5 0 25 25"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            stroke="#ffffff"
+          >
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+            <g
+              id="SVGRepo_tracerCarrier"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></g>
+            <g id="SVGRepo_iconCarrier">
+              {' '}
+              <path
+                d="M3 21.32L21 3.32001"
+                stroke="#fff"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              ></path>{' '}
+              <path
+                d="M3 3.32001L21 21.32"
+                stroke="#fff"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              ></path>{' '}
+            </g>
+          </svg>
+        </button>
+        <h2 className="text-center text-balance font-display font-thin  text-white">
           {product.title}
         </h2>
         <ProductDescription
@@ -144,7 +181,7 @@ function ParallaxCaption({product}: {product: any}) {
       {/* Mobile-only button to show caption */}
       <button
         onClick={toggleMobileCaption}
-        className="md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-1 text-xs uppercase tracking-wider font-medium bg-black/40 text-white/90 hover:bg-black/60 hover:text-white rounded-full border border-white/20 transition-all duration-200 backdrop-blur-sm z-20"
+        className={`md:hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-1 text-xs uppercase tracking-wider font-medium bg-black/40 text-white/90 hover:bg-black/60 hover:text-white rounded-full border border-white/20 transition-all duration-200 backdrop-blur-sm ${mobileVisible ? 'z-0' : 'z-10'}`}
       >
         {mobileVisible ? 'Hide Details' : 'Show Details'}
       </button>

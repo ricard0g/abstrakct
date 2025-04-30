@@ -19,8 +19,8 @@ export default async function handleRequest(
     styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
     fontSrc: [
       "'self'",
-      'https://fonts.gstatic.com',
       'https://fonts.googleapis.com',
+      'https://fonts.gstatic.com',
     ],
   });
 
