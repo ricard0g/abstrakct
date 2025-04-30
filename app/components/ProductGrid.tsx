@@ -52,7 +52,7 @@ function ProductItem({product, key}: {product: any; key: string}) {
       },
     }),
     {
-      amount: 0.2,
+      amount: 0.4,
       once: true,
     },
   );
