@@ -110,7 +110,7 @@ function ParallaxCaption({product}: {product: any}) {
         style={desktopCaptionSpring}
         className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:block hidden z-10"
       >
-        <h2 className="text-center text-balance font-display font-extralight text-white">
+        <h2 className="text-center text-balance font-display font-black text-white">
           {product.title}
         </h2>
         <ProductDescription
@@ -165,7 +165,7 @@ function ParallaxCaption({product}: {product: any}) {
             </g>
           </svg>
         </button>
-        <h2 className="text-center text-balance font-display font-thin  text-white">
+        <h2 className="text-center text-balance font-playfair font-normal text-white">
           {product.title}
         </h2>
         <ProductDescription

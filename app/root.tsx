@@ -5,6 +5,7 @@ import {
   useRouteError,
   isRouteErrorResponse,
   type ShouldRevalidateFunction,
+  useHref,
 } from '@remix-run/react';
 import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
@@ -52,10 +53,6 @@ export function links() {
     {
       rel: 'preconnect',
       href: 'https://shop.app',
-    },
-    {
-      rel: 'preconnect',
-      href: 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
