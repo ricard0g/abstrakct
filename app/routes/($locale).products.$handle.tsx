@@ -7,14 +7,16 @@ import {
   getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
+  Money,
 } from '@shopify/hydrogen';
-import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {animated, useSpring} from '@react-spring/web';
+import { AddToCartButton } from '~/components/AddToCartButton';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: `Abstrakct | ${data?.product.title ?? ''}`},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
@@ -78,6 +80,19 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 
 export default function Product() {
   const {product} = useLoaderData<typeof loader>();
+  const [textSprings] = useSpring(
+    () => ({
+      from: {
+        // opacity: 0,
+        y: '100%',
+      },
+      to: {
+        // opacity: 1,
+        y: '0',
+      },
+    }),
+    [],
+  );
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -98,28 +113,43 @@ export default function Product() {
   const {title, descriptionHtml} = product;
 
   return (
-    <div className="product">
+    <div className="h-full z-0">
       <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
-      </div>
+      <section className="flex flex-col items-center justify-center w-full max-h-full h-[90vh] mx-auto overflow-hidden -z-20">
+        <div className="flex flex-col items-start justify-center relative w-full h-full overflow-hidden">
+          <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
+            {/* First set of titles */}
+            <span className="block overflow-hidden">
+              {[...Array(2)].map((_, i) => (
+                <animated.span
+                  style={textSprings}
+                  key={i}
+                  className="inline-block text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+                >
+                  {title}
+                </animated.span>
+              ))}
+            </span>
+            {/* Duplicate set to create seamless loop */}
+            <span className='block overflow-hidden'>
+              {[...Array(2)].map((_, i) => (
+                <animated.span
+                  style={textSprings}
+                  key={`dup-${i}`}
+                  className="inline-block text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+                >
+                  {title}
+                </animated.span>
+              ))}
+            </span>
+          </h1>
+          <div className='block overflow-hidden'>
+            <animated.h2 style={textSprings} className='my-0'  >
+              <Money  className="text-6xl" data={selectedVariant.price} />
+            </animated.h2>
+          </div>
+        </div>
+      </section>
       <Analytics.ProductView
         data={{
           products: [

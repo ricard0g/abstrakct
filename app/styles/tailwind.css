@@ -12,4 +12,31 @@
 @theme {
   --font-display: 'Playfair Display', serif;
   --font-body: 'Open Sans', sans-serif;
+
+  --animate-carousel: marquee 90s linear infinite;
+  --animate-bg-rotate: bg-rotate 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes bg-rotate {
+    0% {
+      background-position: 0% 50%;
+    }
+    30% {
+      background-position: 100% 20%;
+    }
+    60% {
+      background-position: 50% 100%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 }

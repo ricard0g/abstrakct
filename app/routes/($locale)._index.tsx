@@ -11,7 +11,7 @@ import SimpleExperience from '~/components/SimpleExperience';
 export type IndexLoader = typeof loader;
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [{title: 'Abstrakct | Home'}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -29,6 +29,9 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({context}: LoaderFunctionArgs) {
+  // Simulate network delay
+  // await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds
+
   const [{collections}, {products}] = await Promise.all([
     context.storefront.query(FEATURED_COLLECTION_QUERY),
     context.storefront.query(ALL_PRODUCTS_QUERY, {
@@ -65,9 +68,20 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+
   return (
-    <div className="home">
-      <SimpleExperience />
+    <Suspense fallback={<Loading />}>
+      <Await resolve={data.products}>
+        {(products) => <SimpleExperience products={products} />}
+      </Await>
+    </Suspense>
+  );
+}
+
+function Loading() {
+  return (
+    <div>
+      <h1 className="text-black">Loading...</h1>
     </div>
   );
 }

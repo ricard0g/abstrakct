@@ -1,8 +1,9 @@
-import {Link, useNavigation} from '@remix-run/react';
+import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
-import {useState, useRef, useEffect} from 'react';
+import {useState, useRef, useEffect, Suspense} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
+import Spinner from './Spinner';
 
 function aspectRatio(width: number, height: number) {
   return width / height;
@@ -13,24 +14,33 @@ export default function ProductGrid({
 }: {
   products: Awaited<ReturnType<IndexLoader>>['products'];
 }) {
-  const navigation = useNavigation();
-
   return (
-    <div
-      className={
-        navigation.state === 'loading'
-          ? 'loading'
-          : 'grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center'
-      } /*className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center"*/
-    >
-      {products.map((product: any, i: number) => {
-        return <ProductItem key={product.id} product={product} />;
-      })}
+    <Suspense fallback={<GridLoader />}>
+      <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
+        {products.map((product: any) => {
+          return <ProductItem key={product.id} product={product} />;
+        })}
+      </div>
+    </Suspense>
+  );
+}
+
+function GridLoader() {
+  return (
+    <div className="w-full h-96 flex items-center justify-center">
+      <Spinner 
+        size={80} 
+        color="#000000" 
+        secondaryColor="#e5e5e5" 
+        thickness={4}
+        className="animate-pulse"
+      />
     </div>
   );
 }
 
-function ProductItem({product, key}: {product: any; key: string}) {
+function ProductItem({product}: {product: any}) {
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [inViewRef, springs] = useInView(
     () => ({
       from: {
@@ -68,15 +78,25 @@ function ProductItem({product, key}: {product: any; key: string}) {
       className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
       }`}
-      key={key}
     >
-      <figure className=" w-full h-full m-0 relative">
+      <figure className="w-full h-full m-0 relative">
         <Link to={`/products/${product.handle}`} prefetch="intent">
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+              <Spinner 
+                size={40} 
+                color="#000000" 
+                secondaryColor="#e5e5e5" 
+                thickness={3} 
+              />
+            </div>
+          )}
           {product.featuredImage && (
             <Image
               data={product.featuredImage}
               loading="lazy"
-              className="max-w-full w-full max-h-full h-auto rounded-lg object-cover"
+              onLoad={() => setImageLoaded(true)}
+              className={`max-w-full w-full max-h-full h-auto rounded-lg object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
             />
           )}
           <ParallaxCaption product={product} />
