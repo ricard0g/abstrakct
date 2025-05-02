@@ -12,7 +12,7 @@ import {
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
 import {animated, useSpring} from '@react-spring/web';
-import { AddToCartButton } from '~/components/AddToCartButton';
+import {AddToCartButton} from '~/components/AddToCartButton';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [
@@ -83,11 +83,9 @@ export default function Product() {
   const [textSprings] = useSpring(
     () => ({
       from: {
-        // opacity: 0,
         y: '100%',
       },
       to: {
-        // opacity: 1,
         y: '0',
       },
     }),
@@ -131,7 +129,7 @@ export default function Product() {
               ))}
             </span>
             {/* Duplicate set to create seamless loop */}
-            <span className='block overflow-hidden'>
+            <span className="block overflow-hidden">
               {[...Array(2)].map((_, i) => (
                 <animated.span
                   style={textSprings}
@@ -143,9 +141,9 @@ export default function Product() {
               ))}
             </span>
           </h1>
-          <div className='block overflow-hidden'>
-            <animated.h2 style={textSprings} className='my-0'  >
-              <Money  className="text-6xl" data={selectedVariant.price} />
+          <div className="block overflow-hidden">
+            <animated.h2 style={textSprings} className="my-0">
+              <Money className="text-6xl" data={selectedVariant.price} />
             </animated.h2>
           </div>
         </div>

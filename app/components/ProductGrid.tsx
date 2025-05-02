@@ -14,14 +14,25 @@ export default function ProductGrid({
 }: {
   products: Awaited<ReturnType<IndexLoader>>['products'];
 }) {
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Set loading to false after products are available
+    if (products && products.length > 0) {
+      setLoading(false);
+    }
+  }, [products]);
+  
+  if (loading) {
+    return <GridLoader />;
+  }
+  
   return (
-    <Suspense fallback={<GridLoader />}>
-      <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-        {products.map((product: any) => {
-          return <ProductItem key={product.id} product={product} />;
-        })}
-      </div>
-    </Suspense>
+    <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
+      {products.map((product: any) => {
+        return <ProductItem key={product.id} product={product} />;
+      })}
+    </div>
   );
 }
 
@@ -41,7 +52,9 @@ function GridLoader() {
 
 function ProductItem({product}: {product: any}) {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [inViewRef, springs] = useInView(
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  
+  const [setInViewRef, springs] = useInView(
     () => ({
       from: {
         opacity: 0,
@@ -66,14 +79,27 @@ function ProductItem({product}: {product: any}) {
       once: true,
     },
   );
+  
+  useEffect(() => {
+    // Check if image is already cached
+    if (imageRef.current && imageRef.current.complete) {
+      setImageLoaded(true);
+    }
+  }, []);
+  
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+  
   const isWideImage =
     aspectRatio(
       product.featuredImage?.width ?? 0,
       product.featuredImage?.height ?? 0,
     ) > 1;
+  
   return (
     <animated.div
-      ref={inViewRef}
+      ref={setInViewRef}
       style={springs}
       className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
@@ -82,7 +108,7 @@ function ProductItem({product}: {product: any}) {
       <figure className="w-full h-full m-0 relative">
         <Link to={`/products/${product.handle}`} prefetch="intent">
           {!imageLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
               <Spinner 
                 size={40} 
                 color="#000000" 
@@ -93,10 +119,11 @@ function ProductItem({product}: {product: any}) {
           )}
           {product.featuredImage && (
             <Image
+              ref={imageRef}
               data={product.featuredImage}
               loading="lazy"
-              onLoad={() => setImageLoaded(true)}
-              className={`max-w-full w-full max-h-full h-auto rounded-lg object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
+              onLoad={handleImageLoad}
+              className={`max-w-full w-full max-h-full h-auto rounded-lg object-cover transition-opacity duration-500`}
             />
           )}
           <ParallaxCaption product={product} />
