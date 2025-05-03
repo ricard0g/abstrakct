@@ -1,19 +1,20 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {Image, Video} from '@shopify/hydrogen';
 import {useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
   getSelectedProductOptions,
   Analytics,
   useOptimisticVariant,
-  getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
   Money,
 } from '@shopify/hydrogen';
 import {ProductImage} from '~/components/ProductImage';
-import {ProductForm} from '~/components/ProductForm';
-import {animated, useSpring} from '@react-spring/web';
+import {animated, useScroll, useSpring, useInView} from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
-import type {ProductVariant} from '@shopify/hydrogen/storefront-api-types';
+import type {ProductFragment} from 'storefrontapi.generated';
+import {useAside} from '~/components/Aside';
+import {useState, useEffect} from 'react';
 
 type Metafield = {
   id: string;
@@ -139,17 +140,6 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
 
 export default function Product() {
   const {product} = useLoaderData<typeof loader>();
-  const [textSprings] = useSpring(
-    () => ({
-      from: {
-        y: '100%',
-      },
-      to: {
-        y: '0',
-      },
-    }),
-    [],
-  );
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -161,19 +151,46 @@ export default function Product() {
   // only when no search params are set in the url
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
 
-  // Get the product options array
-  const productOptions = getProductOptions({
-    ...product,
-    selectedOrFirstAvailableVariant: selectedVariant,
-  });
-
   const {title, metafields} = product;
+  const {open} = useAside();
+
+  const productCopyMetafield = metafields.find(
+    (metafield) => metafield?.key === 'product_copy',
+  );
+
+  const productCopy = productCopyMetafield?.value
+    ? (JSON.parse(productCopyMetafield.value) as ProductCopy)
+    : null;
 
   return (
-    <div className="h-full z-0">
+    <div>
       <ProductImage image={selectedVariant?.image} />
       <ProductHero title={title} selectedVariant={selectedVariant} />
-      <ProductDescription metafields={metafields} />
+      <AddToCartButton
+        disabled={!selectedVariant || !selectedVariant.availableForSale}
+        lines={
+          selectedVariant
+            ? [
+                {
+                  merchandiseId: selectedVariant.id,
+                  quantity: 1,
+                  selectedVariant,
+                },
+              ]
+            : []
+        }
+        onClick={() => {
+          open('cart');
+        }}
+      >
+        {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
+      </AddToCartButton>
+      <ProductDescription
+        metafields={metafields as Metafield[]}
+        productCopy={productCopy}
+      />
+      <AnimatedHeading productCopy={productCopy} />
+      <ProductHistory productCopy={productCopy} />
       <Analytics.ProductView
         data={{
           products: [
@@ -198,7 +215,7 @@ function ProductHero({
   selectedVariant,
 }: {
   title: string;
-  selectedVariant: ProductVariant;
+  selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
 }) {
   const [textSprings] = useSpring(
     () => ({
@@ -213,7 +230,7 @@ function ProductHero({
   );
 
   return (
-    <section className="flex flex-col items-center justify-center w-full max-h-full h-[90vh] mx-auto overflow-hidden -z-20">
+    <section className="flex flex-col items-center justify-center w-full max-h-full h-[80vh] mx-auto overflow-hidden -z-20">
       <div className="flex flex-col items-start justify-center relative w-full h-full overflow-hidden">
         <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
@@ -243,7 +260,12 @@ function ProductHero({
         </h1>
         <div className="block overflow-hidden">
           <animated.h2 style={textSprings} className="my-0">
-            <Money className="text-6xl" data={selectedVariant.price} />
+            <Money
+              className="text-6xl"
+              data={
+                selectedVariant?.price ?? {amount: '0', currencyCode: 'EUR'}
+              }
+            />
           </animated.h2>
         </div>
       </div>
@@ -251,37 +273,299 @@ function ProductHero({
   );
 }
 
-function ProductDescription({metafields}: {metafields: Metafield[]}) {
-  const productCopyMetafield = metafields.find(
-    (metafield: Metafield) => metafield.key === 'product_copy',
-  );
+function ProductDescription({
+  metafields,
+  productCopy,
+}: {
+  metafields: Metafield[];
+  productCopy: ProductCopy | null;
+}) {
+  const [textSprings, textApi] = useSpring(() => ({
+    y: '100%', // Start fully hidden
+  }));
 
-  const productCopy = productCopyMetafield?.value
-    ? (JSON.parse(productCopyMetafield.value) as ProductCopy)
-    : null;
+  const [widthSpring, widthApi] = useSpring(() => ({
+    width: '0',
+  }));
+
+  useScroll({
+    onChange: ({value: {scrollYProgress}}) => {
+      // Log the scroll progress relative to the page
+      console.log('Global scrollYProgress:', scrollYProgress);
+
+      let widthValue = 0;
+      let yValue = 100; // Default to 100% (hidden)
+      const startThreshold = 0.2; // Keep the start point
+      const endThreshold = 0.4; // NEW: Define the animation end point
+
+      // Check if we are within the animation range [0.2, 0.3]
+      if (
+        scrollYProgress >= startThreshold &&
+        scrollYProgress <= endThreshold
+      ) {
+        // Calculate progress ONLY within the 0.2 to 0.3 range.
+        // When scrollYProgress is 0.2, this is 0.
+        // When scrollYProgress is 0.3, this is 1.
+        const relativeProgress =
+          (scrollYProgress - startThreshold) / (endThreshold - startThreshold);
+
+        // Interpolate y from 100 down to 0 based on this shorter range progress
+        yValue = 100 - relativeProgress * 100;
+        widthValue = relativeProgress * 100;
+      } else if (scrollYProgress > endThreshold) {
+        // If we've scrolled past 30%, the animation should be fully complete (text shown)
+        yValue = 0;
+        widthValue = 100;
+      }
+      // If scrollYProgress < startThreshold (before 20%), yValue remains 100 (initial value - hidden)
+
+      // Update the spring animation
+      textApi.set({y: `${yValue}%`});
+      widthApi.set({width: `${widthValue}%`});
+    },
+    // You might want immediate: true if the animation feels laggy on start
+    default: {
+      immediate: true,
+    },
+  });
 
   const paintingLocation: string | undefined = metafields.find(
-    (metafield: Metafield) => metafield.key === 'painting_location',
+    (metafield) => metafield?.key === 'painting_location',
   )?.value;
   const style: string | undefined = metafields.find(
-    (metafield: Metafield) => metafield.key === 'style',
+    (metafield) => metafield?.key === 'style',
   )?.value;
   const medium: string | undefined = metafields.find(
-    (metafield: Metafield) => metafield.key === 'medium',
+    (metafield) => metafield?.key === 'medium',
   )?.value;
   const year: string | undefined = metafields.find(
-    (metafield: Metafield) => metafield.key === 'year',
+    (metafield) => metafield?.key === 'year',
   )?.value;
   const artist: string | undefined = metafields.find(
-    (metafield: Metafield) => metafield.key === 'artist',
+    (metafield) => metafield?.key === 'artist',
   )?.value;
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full">
-      <h2 className="text-4xl font-bold">
-        {productCopy?.['description-section']['concise-heading']}
-      </h2>
+    <div className="flex items-center justify-between w-full my-[100px] overflow-y-auto relative">
+      {/* Ensure content inside is taller than h-[500px] to allow scrolling */}
+      <div className="flex flex-col gap-5 max-w-[35%]">
+        <h2 className="block relative text-7xl font-display tracking-tighter overflow-hidden">
+          <animated.span style={textSprings} className="inline-block">
+            {productCopy?.['description-section']['concise-heading']}
+          </animated.span>
+        </h2>
+        <p className="text-lg tracking-wide text-pretty overflow-hidden">
+          <animated.span style={textSprings} className="inline-block">
+            {productCopy?.['description-section']['concise-description']}
+          </animated.span>
+        </p>
+      </div>
+      <div className="max-w-[35%] w-full">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className="block overflow-hidden">
+              <animated.span
+                style={textSprings}
+                className="inline-block font-bold"
+              >
+                Painting Location
+              </animated.span>
+            </span>
+            <span className="block max-w-1/2 overflow-hidden">
+              <animated.span style={textSprings} className="inline-block">
+                {paintingLocation}
+              </animated.span>
+            </span>
+          </div>
+          <animated.div
+            style={widthSpring}
+            className="w-full h-[1px] bg-black"
+          ></animated.div>
+          <div className="flex items-center justify-between">
+            <span className="block overflow-hidden">
+              <animated.span
+                style={textSprings}
+                className="inline-block font-bold"
+              >
+                Style
+              </animated.span>
+            </span>
+            <span className="block max-w-1/2 overflow-hidden">
+              <animated.span style={textSprings} className="inline-block">
+                {style}
+              </animated.span>
+            </span>
+          </div>
+          <animated.div
+            style={widthSpring}
+            className="w-full h-[1px] bg-black"
+          ></animated.div>
+          <div className="flex items-center justify-between">
+            <span className="block overflow-hidden">
+              <animated.span
+                style={textSprings}
+                className="inline-block font-bold"
+              >
+                Medium
+              </animated.span>
+            </span>
+            <span className="block max-w-1/2 overflow-hidden">
+              <animated.span style={textSprings} className="inline-block">
+                {medium}
+              </animated.span>
+            </span>
+          </div>
+          <animated.div
+            style={widthSpring}
+            className="w-full h-[1px] bg-black"
+          ></animated.div>
+          <div className="flex items-center justify-between">
+            <span className="block overflow-hidden">
+              <animated.span
+                style={textSprings}
+                className="inline-block font-bold"
+              >
+                Year
+              </animated.span>
+            </span>
+            <span className="block max-w-1/2 overflow-hidden">
+              <animated.span style={textSprings} className="inline-block">
+                {year}
+              </animated.span>
+            </span>
+          </div>
+          <animated.div
+            style={widthSpring}
+            className="w-full h-[1px] bg-black"
+          ></animated.div>
+          <div className="flex items-center justify-between">
+            <span className="block overflow-hidden">
+              <animated.span
+                style={textSprings}
+                className="inline-block font-bold"
+              >
+                Artist
+              </animated.span>
+            </span>
+            <span className="block max-w-1/2 overflow-hidden">
+              <animated.span style={textSprings} className="inline-block">
+                {artist}
+              </animated.span>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
+  const [textSprings, textApi] = useSpring(() => ({
+    y: '-100%',
+    opacity: 0,
+    config: {
+      mass: 1,
+      tension: 100,
+      friction: 10,
+    },
+  }));
+
+  useScroll({
+    onChange: ({value: {scrollYProgress}}) => {
+      let yValue = -100;
+      let opacityValue = 0;
+      const startThreshold = 0.6;
+      const endThreshold = 0.9;
+
+      if (
+        scrollYProgress >= startThreshold &&
+        scrollYProgress <= endThreshold
+      ) {
+        const relativeProgress =
+          (scrollYProgress - startThreshold) / (endThreshold - startThreshold);
+        yValue = -100 + relativeProgress * 100;
+        opacityValue = relativeProgress;
+      } else if (scrollYProgress > endThreshold) {
+        yValue = 0;
+        opacityValue = 1;
+      }
+
+      textApi.start({y: `${yValue}%`, opacity: opacityValue});
+    },
+    default: {
+      immediate: true,
+    },
+  });
+
+  return (
+    <section className="relative bg-white flex items-center justify-center w-full h-full my-72 z-[1]">
+      <h2 className="flex items-center justify-center text-8xl font-display tracking-tighter overflow-hidden">
+        <animated.span
+          style={textSprings}
+          className="inline-block max-w-3/5 mx-auto text-center "
+        >
+          {productCopy?.['animated-heading']}
+        </animated.span>
+      </h2>
+    </section>
+  );
+}
+
+function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
+  return (
+    <section className="relative bg-gray-200 flex flex-col content-between justify-between w-full h-full rounded-lg">
+      <div className="flex justify-start max-w-[35%] w-full px-5 py-5">
+        <h2 className="text-7xl font-display tracking-tighter overflow-hidden">
+          {productCopy?.['history-section']['heading']}
+        </h2>
+      </div>
+      <div className="flex items-center justify-between w-full h-full px-5 py-5">
+        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
+          <p className="text-lg tracking-wide text-pretty overflow-hidden">
+            {productCopy?.['history-section']['first-block']['text-block']}
+          </p>
+        </div>
+        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
+          <Image
+            src={productCopy?.['history-section']['first-block']['image_url']}
+            alt="Product Image"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-between w-full h-full px-5 py-5">
+        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
+          <p className="text-lg tracking-wide text-pretty overflow-hidden">
+            {productCopy?.['history-section']['second-block']['text-block']}
+          </p>
+        </div>
+        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
+          <Video
+            data={{
+              sources: [
+                {
+                  url: productCopy?.['history-section']['second-block']['image_url'] || '',
+                  mimeType: 'video/mp4',
+                }
+              ]
+            }}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-between w-full h-full px-5 py-5">
+        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
+          <p className="text-lg tracking-wide text-pretty overflow-hidden">
+            {productCopy?.['history-section']['third-block']['text-block']}
+          </p>
+        </div>
+        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
+          <Image
+            src={productCopy?.['history-section']['third-block']['image_url']}
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 
