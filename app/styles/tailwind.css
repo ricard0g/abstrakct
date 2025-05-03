@@ -13,7 +13,7 @@
   --font-display: 'Playfair Display', serif;
   --font-body: 'Open Sans', sans-serif;
 
-  --animate-carousel: marquee 90s linear infinite;
+  --animate-carousel: marquee 40s linear infinite;
   --animate-bg-rotate: bg-rotate 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
 
   @keyframes marquee {
