@@ -15,6 +15,7 @@ import {AddToCartButton} from '~/components/AddToCartButton';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useState, useEffect} from 'react';
+import {Parallax, ParallaxLayer} from '@react-spring/parallax';
 
 type Metafield = {
   id: string;
@@ -295,8 +296,8 @@ function ProductDescription({
 
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
-      const startThreshold = 0.2; // Keep the start point
-      const endThreshold = 0.4; // NEW: Define the animation end point
+      const startThreshold = 0.1; // Keep the start point
+      const endThreshold = 0.2; // NEW: Define the animation end point
 
       // Check if we are within the animation range [0.2, 0.3]
       if (
@@ -474,8 +475,8 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
     onChange: ({value: {scrollYProgress}}) => {
       let yValue = -100;
       let opacityValue = 0;
-      const startThreshold = 0.6;
-      const endThreshold = 0.9;
+      const startThreshold = 0.25;
+      const endThreshold = 0.35;
 
       if (
         scrollYProgress >= startThreshold &&
@@ -513,25 +514,42 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
 
 function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
   return (
-    <section className="relative bg-gray-200 flex flex-col content-between justify-between w-full h-full rounded-lg">
-      <div className="flex justify-start max-w-[35%] w-full px-5 py-5">
+    <Parallax
+      pages={3}
+      className="relative bg-gray-200 flex flex-col content-between justify-between w-full h-full rounded-lg"
+    >
+      <ParallaxLayer
+        offset={0}
+        speed={0}
+        className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
+      >
         <h2 className="text-7xl font-display tracking-tighter overflow-hidden">
           {productCopy?.['history-section']['heading']}
         </h2>
-      </div>
+      </ParallaxLayer>
       <div className="flex items-center justify-between w-full h-full px-5 py-5">
-        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
+        <ParallaxLayer
+          offset={1}
+          speed={0}
+          className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
+        >
           <p className="text-lg tracking-wide text-pretty overflow-hidden">
             {productCopy?.['history-section']['first-block']['text-block']}
           </p>
-        </div>
-        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
+        </ParallaxLayer>
+        <ParallaxLayer
+          offset={1}
+          speed={0}
+          className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
+        >
           <Image
             src={productCopy?.['history-section']['first-block']['image_url']}
             alt="Product Image"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-lg"
           />
-        </div>
+        </ParallaxLayer>
+        {/* <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"></div>
+        <div className="flex items-center justify-center max-w-[35%] w-full h-full"></div> */}
       </div>
       <div className="flex items-center justify-between w-full h-full px-5 py-5">
         <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
@@ -544,11 +562,17 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
             data={{
               sources: [
                 {
-                  url: productCopy?.['history-section']['second-block']['image_url'] || '',
+                  url:
+                    productCopy?.['history-section']['second-block'][
+                      'image_url'
+                    ] || '',
                   mimeType: 'video/mp4',
-                }
-              ]
+                },
+              ],
             }}
+            controls={false}
+            autoPlay={true}
+            muted={true}
             className="w-full h-full object-cover"
           />
         </div>
@@ -565,7 +589,7 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
           />
         </div>
       </div>
-    </section>
+    </Parallax>
   );
 }
 
