@@ -373,7 +373,10 @@ function ProductDescription({
               </animated.span>
             </span>
             <span className="block max-w-1/2 overflow-hidden">
-              <animated.span style={textSprings} className="inline-block">
+              <animated.span
+                style={textSprings}
+                className="inline-block text-end"
+              >
                 {paintingLocation}
               </animated.span>
             </span>
@@ -392,7 +395,10 @@ function ProductDescription({
               </animated.span>
             </span>
             <span className="block max-w-1/2 overflow-hidden">
-              <animated.span style={textSprings} className="inline-block">
+              <animated.span
+                style={textSprings}
+                className="inline-block text-end"
+              >
                 {style}
               </animated.span>
             </span>
@@ -411,7 +417,10 @@ function ProductDescription({
               </animated.span>
             </span>
             <span className="block max-w-1/2 overflow-hidden">
-              <animated.span style={textSprings} className="inline-block">
+              <animated.span
+                style={textSprings}
+                className="inline-block text-end"
+              >
                 {medium}
               </animated.span>
             </span>
@@ -430,7 +439,10 @@ function ProductDescription({
               </animated.span>
             </span>
             <span className="block max-w-1/2 overflow-hidden">
-              <animated.span style={textSprings} className="inline-block">
+              <animated.span
+                style={textSprings}
+                className="inline-block text-end"
+              >
                 {year}
               </animated.span>
             </span>
@@ -449,7 +461,10 @@ function ProductDescription({
               </animated.span>
             </span>
             <span className="block max-w-1/2 overflow-hidden">
-              <animated.span style={textSprings} className="inline-block">
+              <animated.span
+                style={textSprings}
+                className="inline-block text-end"
+              >
                 {artist}
               </animated.span>
             </span>
@@ -514,82 +529,142 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
 
 function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
   return (
-    <Parallax
-      pages={3}
-      className="relative bg-gray-200 flex flex-col content-between justify-between w-full h-full rounded-lg"
-    >
-      <ParallaxLayer
-        offset={0}
-        speed={0}
-        className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
-      >
-        <h2 className="text-7xl font-display tracking-tighter overflow-hidden">
-          {productCopy?.['history-section']['heading']}
-        </h2>
-      </ParallaxLayer>
-      <div className="flex items-center justify-between w-full h-full px-5 py-5">
-        <ParallaxLayer
-          offset={1}
-          speed={0}
-          className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
+    <>
+      {/* Parallax History Section */}
+      <section className="relative w-11/12 mx-auto h-[85vh] sticky top-0 mt-10 z-10">
+        <Parallax
+          pages={4}
+          className="absolute top-0 left-0 w-full h-full bg-zinc-900 border-[1px] border-zinc-700 rounded-lg overflow-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-800 [&::-webkit-scrollbar-thumb]:bg-zinc-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-zinc-800 [&::-webkit-scrollbar-thumb:hover]:bg-zinc-400 scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-500"
         >
-          <p className="text-lg tracking-wide text-pretty overflow-hidden">
-            {productCopy?.['history-section']['first-block']['text-block']}
-          </p>
-        </ParallaxLayer>
-        <ParallaxLayer
-          offset={1}
-          speed={0}
-          className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"
-        >
-          <Image
-            src={productCopy?.['history-section']['first-block']['image_url']}
-            alt="Product Image"
-            className="w-full h-full object-cover rounded-lg"
-          />
-        </ParallaxLayer>
-        {/* <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full"></div>
-        <div className="flex items-center justify-center max-w-[35%] w-full h-full"></div> */}
-      </div>
-      <div className="flex items-center justify-between w-full h-full px-5 py-5">
-        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
-          <p className="text-lg tracking-wide text-pretty overflow-hidden">
-            {productCopy?.['history-section']['second-block']['text-block']}
-          </p>
-        </div>
-        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
-          <Video
-            data={{
-              sources: [
-                {
-                  url:
-                    productCopy?.['history-section']['second-block'][
-                      'image_url'
-                    ] || '',
-                  mimeType: 'video/mp4',
-                },
-              ],
-            }}
-            controls={false}
-            autoPlay={true}
-            muted={true}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
-      <div className="flex items-center justify-between w-full h-full px-5 py-5">
-        <div className="flex flex-col items-center justify-center max-w-[35%] w-full h-full">
-          <p className="text-lg tracking-wide text-pretty overflow-hidden">
-            {productCopy?.['history-section']['third-block']['text-block']}
-          </p>
-        </div>
-        <div className="flex items-center justify-center max-w-[35%] w-full h-full">
-          <Image
-            src={productCopy?.['history-section']['third-block']['image_url']}
-          />
-        </div>
-      </div>
-    </Parallax>
+          {/* Heading - Section 1 */}
+          <ParallaxLayer
+            offset={0}
+            speed={0.2}
+            factor={1}
+            className="flex items-center justify-center"
+          >
+            <div className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5">
+              <h2 className="text-7xl font-display tracking-tighter text-center mb-12 overflow-hidden text-gray-100">
+                {productCopy?.['history-section']['heading']}
+              </h2>
+            </div>
+          </ParallaxLayer>
+
+          {/* First Block - Section 2 */}
+          <ParallaxLayer
+            offset={1}
+            speed={0.1}
+            factor={1}
+            className="flex items-center justify-start px-20"
+          >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
+              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+                History
+              </h3>
+              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+                {productCopy?.['history-section']['first-block']['text-block']}
+              </p>
+            </div>
+          </ParallaxLayer>
+
+          <ParallaxLayer
+            offset={1}
+            speed={0.3}
+            factor={1}
+            className="flex items-center justify-end px-20"
+          >
+            <div className="flex flex-col items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+              <Image
+                src={
+                  productCopy?.['history-section']['first-block']['image_url']
+                }
+                alt="Product Image"
+                className="max-w-full w-full max-h-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </ParallaxLayer>
+
+          {/* Second Block - Section 3 */}
+          <ParallaxLayer
+            offset={2}
+            speed={0.1}
+            factor={1}
+            className="flex items-center justify-end px-20"
+          >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
+              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+                The Process
+              </h3>
+              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+                {productCopy?.['history-section']['second-block']['text-block']}
+              </p>
+            </div>
+          </ParallaxLayer>
+
+          <ParallaxLayer
+            offset={2}
+            speed={0.3}
+            factor={1}
+            className="flex items-center justify-start px-20"
+          >
+            <div className="flex items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+              <Video
+                data={{
+                  sources: [
+                    {
+                      url:
+                        productCopy?.['history-section']['second-block'][
+                          'image_url'
+                        ] || '',
+                      mimeType: 'video/mp4',
+                    },
+                  ],
+                }}
+                controls={false}
+                autoPlay={true}
+                muted={true}
+                loop={true}
+                className="max-w-full w-full max-h-full h-full object-cover rounded-lg"
+              />
+            </div>
+          </ParallaxLayer>
+
+          {/* Third Block - Section 4 */}
+          <ParallaxLayer
+            offset={3}
+            speed={0.1}
+            factor={1}
+            className="flex items-center justify-start px-20"
+          >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
+              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+                More History
+              </h3>
+              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+                {productCopy?.['history-section']['third-block']['text-block']}
+              </p>
+            </div>
+          </ParallaxLayer>
+
+          <ParallaxLayer
+            offset={3}
+            speed={0.3}
+            factor={1}
+            className="flex items-center justify-end px-20"
+          >
+            <div className="flex items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+              <Image
+                src={
+                  productCopy?.['history-section']['third-block']['image_url']
+                }
+                alt="Product Image"
+                className="max-w-full w-full max-h-full h-full object-contain rounded-4xl"
+              />
+            </div>
+          </ParallaxLayer>
+        </Parallax>
+      </section>
+    </>
   );
 }
 
