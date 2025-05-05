@@ -20,7 +20,7 @@ export function AddToCartButton({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[2]">
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[3]">
       <CartForm
         route="/cart"
         inputs={{lines}}

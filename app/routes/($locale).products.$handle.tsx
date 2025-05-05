@@ -1,5 +1,5 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Image, Video} from '@shopify/hydrogen';
+import {getProductOptions, Image, Video} from '@shopify/hydrogen';
 import {useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
   getSelectedProductOptions,
@@ -10,11 +10,17 @@ import {
   Money,
 } from '@shopify/hydrogen';
 import {ProductImage} from '~/components/ProductImage';
-import {animated, useScroll, useSpring, useInView} from '@react-spring/web';
+import {
+  animated,
+  useScroll,
+  useSpring,
+  useInView,
+  useTrail,
+} from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
-import {useState, useEffect} from 'react';
+import {memo, useCallback, useMemo} from 'react';
 import {Parallax, ParallaxLayer} from '@react-spring/parallax';
 
 type Metafield = {
@@ -155,13 +161,21 @@ export default function Product() {
   const {title, metafields} = product;
   const {open} = useAside();
 
-  const productCopyMetafield = metafields.find(
-    (metafield) => metafield?.key === 'product_copy',
-  );
+  const handleAddToCart = useCallback(() => {
+    open('cart');
+  }, [open]);
 
-  const productCopy = productCopyMetafield?.value
-    ? (JSON.parse(productCopyMetafield.value) as ProductCopy)
-    : null;
+  const productCopy = useMemo(() => {
+    const productCopyMetafield = metafields.find(
+      (metafield) => metafield?.key === 'product_copy',
+    );
+
+    return productCopyMetafield?.value
+      ? (JSON.parse(productCopyMetafield.value) as ProductCopy)
+      : null;
+  }, [metafields]);
+
+  console.log(productCopy);
 
   return (
     <div>
@@ -211,7 +225,7 @@ export default function Product() {
   );
 }
 
-function ProductHero({
+const ProductHero = memo(function ProductHero({
   title,
   selectedVariant,
 }: {
@@ -272,9 +286,9 @@ function ProductHero({
       </div>
     </section>
   );
-}
+});
 
-function ProductDescription({
+const ProductDescription = memo(function ProductDescription({
   metafields,
   productCopy,
 }: {
@@ -296,8 +310,8 @@ function ProductDescription({
 
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
-      const startThreshold = 0.1; // Keep the start point
-      const endThreshold = 0.2; // NEW: Define the animation end point
+      const startThreshold = 0.15; // Keep the start point
+      const endThreshold = 0.3; // NEW: Define the animation end point
 
       // Check if we are within the animation range [0.2, 0.3]
       if (
@@ -473,9 +487,13 @@ function ProductDescription({
       </div>
     </div>
   );
-}
+});
 
-function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
+const AnimatedHeading = memo(function AnimatedHeading({
+  productCopy,
+}: {
+  productCopy: ProductCopy | null;
+}) {
   const [textSprings, textApi] = useSpring(() => ({
     y: '-100%',
     opacity: 0,
@@ -490,8 +508,8 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
     onChange: ({value: {scrollYProgress}}) => {
       let yValue = -100;
       let opacityValue = 0;
-      const startThreshold = 0.25;
-      const endThreshold = 0.35;
+      const startThreshold = 0.3;
+      const endThreshold = 0.5;
 
       if (
         scrollYProgress >= startThreshold &&
@@ -514,7 +532,7 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
   });
 
   return (
-    <section className="relative bg-white flex items-center justify-center w-full h-full my-72 z-[1]">
+    <section className="relative bg-white flex items-center justify-center w-full h-full my-72 z-[2]">
       <h2 className="flex items-center justify-center text-8xl font-display tracking-tighter overflow-hidden">
         <animated.span
           style={textSprings}
@@ -525,16 +543,99 @@ function AnimatedHeading({productCopy}: {productCopy: ProductCopy | null}) {
       </h2>
     </section>
   );
-}
+});
 
-function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
+const ProductHistory = memo(function ProductHistory({
+  productCopy,
+}: {
+  productCopy: ProductCopy | null;
+}) {
+  const headingText = productCopy?.['history-section']?.['heading'] || '';
+  const words = headingText.split(/(\s+)/).filter(Boolean); // Split by spaces, keep spaces as separate elements
+  const [ref, inView] = useInView({
+    rootMargin: '-40% 0px -40% 0px',
+    once: true,
+  });
+  const [firstBlockRef, firstBlockInView] = useInView({
+    rootMargin: '-20% 0px -20% 0px',
+    once: true,
+  });
+  const [secondBlockRef, secondBlockInView] = useInView({
+    rootMargin: '-20% 0px -20% 0px',
+    once: true,
+  });
+  const [thirdBlockRef, thirdBlockInView] = useInView({
+    rootMargin: '-20% 0px -20% 0px',
+    once: true,
+  });
+
+  const firstBlockText =
+    productCopy?.['history-section']['first-block']['text-block'] || '';
+  const firstBlockWords = firstBlockText?.split(/(\s+)/).filter(Boolean);
+
+  const secondBlockText =
+    productCopy?.['history-section']['second-block']['text-block'] || '';
+  const secondBlockWords = secondBlockText?.split(/(\s+)/).filter(Boolean);
+
+  const thirdBlockText =
+    productCopy?.['history-section']['third-block']['text-block'] || '';
+  const thirdBlockWords = thirdBlockText?.split(/(\s+)/).filter(Boolean);
+
+  // Use useTrail for word animation
+  const trail = useTrail(words.length, {
+    from: {opacity: 0, transform: 'translateY(-100px)'},
+    to: {
+      opacity: inView ? 1 : 0,
+      transform: inView ? 'translateY(0px)' : 'translateY(-100px)',
+    },
+    config: {mass: 1, tension: 280, friction: 60},
+    delay: 50, // Adjusted delay slightly for word animation
+  });
+
+  const firstBlockTrail = useTrail(firstBlockWords.length, {
+    from: {y: '100%'},
+    to: {
+      y: firstBlockInView ? '0%' : '100%',
+    },
+    config: {mass: 1, tension: 1000, friction: 60},
+  });
+  const secondBlockTrail = useTrail(secondBlockWords.length, {
+    from: {y: '100%'},
+    to: {
+      y: secondBlockInView ? '0%' : '100%',
+    },
+    config: {mass: 1, tension: 1000, friction: 60},
+  });
+  const thirdBlockTrail = useTrail(thirdBlockWords.length, {
+    from: {y: '100%'},
+    to: {
+      y: thirdBlockInView ? '0%' : '100%',
+    },
+    config: {mass: 1, tension: 1000, friction: 60},
+  });
+
+  console.log('Product History Rendered', {
+    inView,
+    firstBlockInView,
+    secondBlockInView,
+    thirdBlockInView,
+  });
+
   return (
     <>
       {/* Parallax History Section */}
-      <section className="relative w-11/12 mx-auto h-[85vh] sticky top-0 mt-10 z-10">
+      <section className="relative w-11/12 mx-auto h-[85vh] sticky top-0 mt-10 z-[2]">
         <Parallax
           pages={4}
           className="absolute top-0 left-0 w-full h-full bg-zinc-900 border-[1px] border-zinc-700 rounded-lg overflow-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-800 [&::-webkit-scrollbar-thumb]:bg-zinc-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-zinc-800 [&::-webkit-scrollbar-thumb:hover]:bg-zinc-400 scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-500"
+          style={{
+            backgroundColor: '#18181b',
+            opacity: 1,
+            backgroundImage:
+              'radial-gradient(#373737 0.9500000000000001px, transparent 0.9500000000000001px), radial-gradient(#373737 0.9500000000000001px, #18181b 0.9500000000000001px)',
+            backgroundSize: '38px 38px',
+            backgroundPosition: '0 0, 19px 19px',
+          }}
         >
           {/* Heading - Section 1 */}
           <ParallaxLayer
@@ -543,9 +644,20 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
             factor={1}
             className="flex items-center justify-center"
           >
-            <div className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5">
-              <h2 className="text-7xl font-display tracking-tighter text-center mb-12 overflow-hidden text-gray-100">
-                {productCopy?.['history-section']['heading']}
+            <div
+              ref={ref}
+              className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5"
+            >
+              <h2 className="text-7xl font-display tracking-tight text-center mb-12 text-gray-100">
+                {trail.map((props, index) => (
+                  <animated.span
+                    key={index}
+                    style={props as any}
+                    className="inline-block uppercase"
+                  >
+                    {/^\s+$/.test(words[index]) ? '\u00A0' : words[index]}
+                  </animated.span>
+                ))}
               </h2>
             </div>
           </ParallaxLayer>
@@ -557,19 +669,32 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
             factor={1}
             className="flex items-center justify-start px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div
+              ref={firstBlockRef}
+              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
+            >
+              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 History
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {productCopy?.['history-section']['first-block']['text-block']}
+                {firstBlockTrail.map((props, index) => (
+                  <animated.span
+                    style={props as any}
+                    className="inline-block overflow-hidden"
+                    key={index}
+                  >
+                    {/^\s+$/.test(firstBlockWords[index])
+                      ? '\u00A0'
+                      : firstBlockWords[index]}
+                  </animated.span>
+                ))}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
             offset={1}
-            speed={0.3}
+            speed={0.7}
             factor={1}
             className="flex items-center justify-end px-20"
           >
@@ -579,6 +704,7 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
                   productCopy?.['history-section']['first-block']['image_url']
                 }
                 alt="Product Image"
+                loading="lazy"
                 className="max-w-full w-full max-h-full h-full object-cover rounded-lg"
               />
             </div>
@@ -591,19 +717,32 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
             factor={1}
             className="flex items-center justify-end px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div
+              ref={secondBlockRef}
+              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
+            >
+              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 The Process
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {productCopy?.['history-section']['second-block']['text-block']}
+                {secondBlockTrail.map((props, index) => (
+                  <animated.span
+                    key={index}
+                    style={props as any}
+                    className="inline-block overflow-hidden"
+                  >
+                    {/^\s+$/.test(secondBlockWords[index])
+                      ? '\u00A0'
+                      : secondBlockWords[index]}
+                  </animated.span>
+                ))}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
             offset={2}
-            speed={0.3}
+            speed={0.7}
             factor={1}
             className="flex items-center justify-start px-20"
           >
@@ -636,19 +775,32 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
             factor={1}
             className="flex items-center justify-start px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-5xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div
+              ref={thirdBlockRef}
+              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
+            >
+              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 More History
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {productCopy?.['history-section']['third-block']['text-block']}
+                {thirdBlockTrail.map((props, index) => (
+                  <animated.span
+                    key={index}
+                    style={props as any}
+                    className="inline-block overflow-hidden"
+                  >
+                    {/^\s+$/.test(thirdBlockWords[index])
+                      ? '\u00A0'
+                      : thirdBlockWords[index]}
+                  </animated.span>
+                ))}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
             offset={3}
-            speed={0.3}
+            speed={0.7}
             factor={1}
             className="flex items-center justify-end px-20"
           >
@@ -657,8 +809,9 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
                 src={
                   productCopy?.['history-section']['third-block']['image_url']
                 }
+                loading="lazy"
                 alt="Product Image"
-                className="max-w-full w-full max-h-full h-full object-contain rounded-4xl"
+                className="max-w-full w-full max-h-full h-full object-cover rounded-4xl"
               />
             </div>
           </ParallaxLayer>
@@ -666,7 +819,7 @@ function ProductHistory({productCopy}: {productCopy: ProductCopy | null}) {
       </section>
     </>
   );
-}
+});
 
 const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {

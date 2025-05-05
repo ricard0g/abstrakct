@@ -101,7 +101,7 @@ function ProductItem({product}: {product: any}) {
     <animated.div
       ref={setInViewRef}
       style={springs}
-      className={`relative h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
+      className={`relative min-h-[25vh] h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
       }`}
     >
