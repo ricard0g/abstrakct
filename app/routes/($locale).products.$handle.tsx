@@ -1,5 +1,5 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {getProductOptions, Image, Video} from '@shopify/hydrogen';
+import {Image, Video} from '@shopify/hydrogen';
 import {useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
   getSelectedProductOptions,
@@ -14,8 +14,6 @@ import {
   animated,
   useScroll,
   useSpring,
-  useInView,
-  useTrail,
 } from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import type {ProductFragment} from 'storefrontapi.generated';
@@ -175,8 +173,6 @@ export default function Product() {
       : null;
   }, [metafields]);
 
-  console.log(productCopy);
-
   return (
     <div>
       <ProductImage image={selectedVariant?.image} />
@@ -194,9 +190,7 @@ export default function Product() {
               ]
             : []
         }
-        onClick={() => {
-          open('cart');
-        }}
+        onClick={handleAddToCart}
       >
         {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
       </AddToCartButton>
@@ -239,6 +233,11 @@ const ProductHero = memo(function ProductHero({
       },
       to: {
         y: '0',
+      },
+      config: {
+        mass: 1,
+        tension: 100,
+        friction: 10,
       },
     }),
     [],
@@ -344,21 +343,28 @@ const ProductDescription = memo(function ProductDescription({
     },
   });
 
-  const paintingLocation: string | undefined = metafields.find(
-    (metafield) => metafield?.key === 'painting_location',
-  )?.value;
-  const style: string | undefined = metafields.find(
-    (metafield) => metafield?.key === 'style',
-  )?.value;
-  const medium: string | undefined = metafields.find(
-    (metafield) => metafield?.key === 'medium',
-  )?.value;
-  const year: string | undefined = metafields.find(
-    (metafield) => metafield?.key === 'year',
-  )?.value;
-  const artist: string | undefined = metafields.find(
-    (metafield) => metafield?.key === 'artist',
-  )?.value;
+  const paintingLocation: string | undefined = useMemo(
+    () => metafields.find(
+      (metafield) => metafield?.key === 'painting_location',
+    )?.value,
+    [metafields],
+  );
+  const style: string | undefined = useMemo(
+    () => metafields.find((metafield) => metafield?.key === 'style')?.value,
+    [metafields],
+  );
+  const medium: string | undefined = useMemo(
+    () => metafields.find((metafield) => metafield?.key === 'medium')?.value,
+    [metafields],
+  );
+  const year: string | undefined = useMemo(
+    () => metafields.find((metafield) => metafield?.key === 'year')?.value,
+    [metafields],
+  );
+  const artist: string | undefined = useMemo(
+    () => metafields.find((metafield) => metafield?.key === 'artist')?.value,
+    [metafields],
+  );
 
   return (
     <div className="flex items-center justify-between w-full my-[100px] overflow-y-auto relative">
@@ -550,84 +556,33 @@ const ProductHistory = memo(function ProductHistory({
 }: {
   productCopy: ProductCopy | null;
 }) {
-  const headingText = productCopy?.['history-section']?.['heading'] || '';
-  const words = headingText.split(/(\s+)/).filter(Boolean); // Split by spaces, keep spaces as separate elements
-  const [ref, inView] = useInView({
-    rootMargin: '-40% 0px -40% 0px',
-    once: true,
-  });
-  const [firstBlockRef, firstBlockInView] = useInView({
-    rootMargin: '-20% 0px -20% 0px',
-    once: true,
-  });
-  const [secondBlockRef, secondBlockInView] = useInView({
-    rootMargin: '-20% 0px -20% 0px',
-    once: true,
-  });
-  const [thirdBlockRef, thirdBlockInView] = useInView({
-    rootMargin: '-20% 0px -20% 0px',
-    once: true,
-  });
+  const headingText = useMemo(
+    () => productCopy?.['history-section']?.['heading'] || '',
+    [productCopy],
+  );
 
-  const firstBlockText =
-    productCopy?.['history-section']['first-block']['text-block'] || '';
-  const firstBlockWords = firstBlockText?.split(/(\s+)/).filter(Boolean);
+  const firstBlockText = useMemo(
+    () => productCopy?.['history-section']['first-block']['text-block'] || '',
+    [productCopy],
+  );
 
-  const secondBlockText =
-    productCopy?.['history-section']['second-block']['text-block'] || '';
-  const secondBlockWords = secondBlockText?.split(/(\s+)/).filter(Boolean);
+  const secondBlockText = useMemo(
+    () => productCopy?.['history-section']['second-block']['text-block'] || '',
+    [productCopy],
+  );
 
-  const thirdBlockText =
-    productCopy?.['history-section']['third-block']['text-block'] || '';
-  const thirdBlockWords = thirdBlockText?.split(/(\s+)/).filter(Boolean);
-
-  // Use useTrail for word animation
-  const trail = useTrail(words.length, {
-    from: {opacity: 0, transform: 'translateY(-100px)'},
-    to: {
-      opacity: inView ? 1 : 0,
-      transform: inView ? 'translateY(0px)' : 'translateY(-100px)',
-    },
-    config: {mass: 1, tension: 280, friction: 60},
-    delay: 50, // Adjusted delay slightly for word animation
-  });
-
-  const firstBlockTrail = useTrail(firstBlockWords.length, {
-    from: {y: '100%'},
-    to: {
-      y: firstBlockInView ? '0%' : '100%',
-    },
-    config: {mass: 1, tension: 1000, friction: 60},
-  });
-  const secondBlockTrail = useTrail(secondBlockWords.length, {
-    from: {y: '100%'},
-    to: {
-      y: secondBlockInView ? '0%' : '100%',
-    },
-    config: {mass: 1, tension: 1000, friction: 60},
-  });
-  const thirdBlockTrail = useTrail(thirdBlockWords.length, {
-    from: {y: '100%'},
-    to: {
-      y: thirdBlockInView ? '0%' : '100%',
-    },
-    config: {mass: 1, tension: 1000, friction: 60},
-  });
-
-  console.log('Product History Rendered', {
-    inView,
-    firstBlockInView,
-    secondBlockInView,
-    thirdBlockInView,
-  });
+  const thirdBlockText = useMemo(
+    () => productCopy?.['history-section']['third-block']['text-block'] || '',
+    [productCopy],
+  );
 
   return (
     <>
       {/* Parallax History Section */}
-      <section className="relative w-11/12 mx-auto h-[85vh] sticky top-0 mt-10 z-[2]">
+      <section className="sticky w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
         <Parallax
           pages={4}
-          className="absolute top-0 left-0 w-full h-full bg-zinc-900 border-[1px] border-zinc-700 rounded-lg overflow-hidden [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-800 [&::-webkit-scrollbar-thumb]:bg-zinc-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-zinc-800 [&::-webkit-scrollbar-thumb:hover]:bg-zinc-400 scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-500"
+          className="absolute top-0 left-0 w-full h-full bg-zinc-900 border-[1px] border-zinc-700 rounded-lg overflow-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-gray-500 [&::-webkit-scrollbar-thumb:hover]:bg-zinc-400 scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-500"
           style={{
             backgroundColor: '#18181b',
             opacity: 1,
@@ -644,20 +599,9 @@ const ProductHistory = memo(function ProductHistory({
             factor={1}
             className="flex items-center justify-center"
           >
-            <div
-              ref={ref}
-              className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5"
-            >
-              <h2 className="text-7xl font-display tracking-tight text-center mb-12 text-gray-100">
-                {trail.map((props, index) => (
-                  <animated.span
-                    key={index}
-                    style={props as any}
-                    className="inline-block uppercase"
-                  >
-                    {/^\s+$/.test(words[index]) ? '\u00A0' : words[index]}
-                  </animated.span>
-                ))}
+            <div className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5">
+              <h2 className="text-7xl font-display tracking-tight text-center mb-12 text-gray-100 overflow-hidden">
+                {headingText}
               </h2>
             </div>
           </ParallaxLayer>
@@ -669,25 +613,12 @@ const ProductHistory = memo(function ProductHistory({
             factor={1}
             className="flex items-center justify-start px-20"
           >
-            <div
-              ref={firstBlockRef}
-              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
-            >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
               <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 History
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {firstBlockTrail.map((props, index) => (
-                  <animated.span
-                    style={props as any}
-                    className="inline-block overflow-hidden"
-                    key={index}
-                  >
-                    {/^\s+$/.test(firstBlockWords[index])
-                      ? '\u00A0'
-                      : firstBlockWords[index]}
-                  </animated.span>
-                ))}
+                {firstBlockText}
               </p>
             </div>
           </ParallaxLayer>
@@ -717,25 +648,12 @@ const ProductHistory = memo(function ProductHistory({
             factor={1}
             className="flex items-center justify-end px-20"
           >
-            <div
-              ref={secondBlockRef}
-              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
-            >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
               <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 The Process
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {secondBlockTrail.map((props, index) => (
-                  <animated.span
-                    key={index}
-                    style={props as any}
-                    className="inline-block overflow-hidden"
-                  >
-                    {/^\s+$/.test(secondBlockWords[index])
-                      ? '\u00A0'
-                      : secondBlockWords[index]}
-                  </animated.span>
-                ))}
+                {secondBlockText}
               </p>
             </div>
           </ParallaxLayer>
@@ -775,25 +693,12 @@ const ProductHistory = memo(function ProductHistory({
             factor={1}
             className="flex items-center justify-start px-20"
           >
-            <div
-              ref={thirdBlockRef}
-              className="flex flex-col items-center justify-center max-w-1/3 w-full h-full"
-            >
+            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
               <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 More History
               </h3>
               <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
-                {thirdBlockTrail.map((props, index) => (
-                  <animated.span
-                    key={index}
-                    style={props as any}
-                    className="inline-block overflow-hidden"
-                  >
-                    {/^\s+$/.test(thirdBlockWords[index])
-                      ? '\u00A0'
-                      : thirdBlockWords[index]}
-                  </animated.span>
-                ))}
+                {thirdBlockText}
               </p>
             </div>
           </ParallaxLayer>

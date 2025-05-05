@@ -1,7 +1,7 @@
 import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
-import {useState, useRef, useEffect, Suspense} from 'react';
+import {useState, useRef, useEffect, Suspense, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
 import Spinner from './Spinner';
 
@@ -90,12 +90,15 @@ function ProductItem({product}: {product: any}) {
   const handleImageLoad = () => {
     setImageLoaded(true);
   };
-  
-  const isWideImage =
-    aspectRatio(
-      product.featuredImage?.width ?? 0,
-      product.featuredImage?.height ?? 0,
-    ) > 1;
+
+  const isWideImage = useMemo(
+    () =>
+      aspectRatio(
+        product.featuredImage?.width ?? 0,
+        product.featuredImage?.height ?? 0,
+      ) > 1,
+    [product.featuredImage],
+  );
   
   return (
     <animated.div
@@ -154,15 +157,18 @@ function ParallaxCaption({product}: {product: any}) {
     };
   }, []);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current || isMobile) return;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!containerRef.current || isMobile) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     // Calculate center-relative coordinates (-1 to 1 range)
     const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
-    setCoords({x, y});
-  };
+      const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+      setCoords({x, y});
+    },
+    [isMobile],
+  );
 
   // Desktop spring with parallax effect
   const desktopCaptionSpring = useSpring({
@@ -179,10 +185,13 @@ function ParallaxCaption({product}: {product: any}) {
     config: {mass: 1, tension: 280, friction: 60},
   });
 
-  const toggleMobileCaption = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setMobileVisible(!mobileVisible);
-  };
+  const toggleMobileCaption = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setMobileVisible(!mobileVisible);
+    },
+    [mobileVisible],
+  );
 
   return (
     <div
