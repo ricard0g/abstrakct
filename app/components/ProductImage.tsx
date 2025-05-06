@@ -74,7 +74,7 @@ export function ProductImage({
   return (
     <animated.figure
       style={imageSprings}
-      className={`absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 md:fixed md:top-[45%] md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 flex justify-center items-center ${isWideImage ? 'w-full md:w-7/12' : 'w-9/12 md:w-1/3'} h-fit z-[1] p-0 m-0 rounded-lg`}
+      className={`absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 md:fixed md:top-[45%] md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 flex justify-center items-center ${isWideImage ? 'w-full md:w-7/12' : 'w-9/12 sm:w-7/12 md:w-1/3'} h-fit z-[1] p-0 m-0 rounded-lg`}
     >
       <Image
         alt={image.altText || 'Product Image'}

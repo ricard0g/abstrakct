@@ -250,7 +250,7 @@ const ProductHero = memo(function ProductHero({
               <animated.span
                 style={textSprings}
                 key={i}
-                className="inline-block text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+                className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
               >
                 {title}
               </animated.span>
@@ -262,14 +262,14 @@ const ProductHero = memo(function ProductHero({
               <animated.span
                 style={textSprings}
                 key={`dup-${i}`}
-                className="inline-block text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+                className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
               >
                 {title}
               </animated.span>
             ))}
           </span>
         </h1>
-        <div className="block overflow-hidden">
+        <div className="block w-full overflow-hidden">
           <animated.h2
             style={textSprings}
             className="flex items-end justify-between md:block my-0"
@@ -297,12 +297,7 @@ const ProductDescription = memo(function ProductDescription({
   metafields: Metafield[];
   productCopy: ProductCopy | null;
 }) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(
-    () => (window.innerWidth < 768 ? setIsMobile(true) : setIsMobile(false)),
-    [],
-  );
+  const {isMobile} = useResponsive();
 
   const [textSprings, textApi] = useSpring(() => ({
     y: '100%', // Start fully hidden
@@ -377,7 +372,7 @@ const ProductDescription = memo(function ProductDescription({
   );
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between w-full my-12 md:my-[100px] overflow-y-auto relative">
+    <div className="flex flex-col md:flex-row items-center justify-between w-full my-[100px] overflow-y-auto relative">
       {/* Ensure content inside is taller than h-[500px] to allow scrolling */}
       <div className="flex flex-col gap-5 w-full md:max-w-[35%]">
         <h2 className="block relative text-4xl md:text-7xl font-display tracking-tighter overflow-hidden">
@@ -548,7 +543,7 @@ const AnimatedHeading = memo(function AnimatedHeading({
   });
 
   return (
-    <section className="relative bg-white flex items-center justify-center w-full h-full my-24 md:my-72 z-[2]">
+    <section className="relative bg-white flex items-center justify-center w-full h-full my-32 md:my-72 z-[2]">
       <h2 className="flex items-center justify-center text-6xl md:text-8xl font-display tracking-tighter overflow-hidden">
         <animated.span
           style={textSprings}
@@ -659,7 +654,7 @@ const ProductHistory = memo(function ProductHistory({
               <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 History
               </h3>
-              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-xl md:text-2xl tracking-wide leading-loose md:leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {firstBlockText}
               </p>
             </div>
@@ -694,7 +689,7 @@ const ProductHistory = memo(function ProductHistory({
               <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 The Process
               </h3>
-              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-xl md:text-2xl tracking-wide leading-loose md:leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {secondBlockText}
               </p>
             </div>
@@ -739,7 +734,7 @@ const ProductHistory = memo(function ProductHistory({
               <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 More History
               </h3>
-              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-xl md:text-2xl tracking-wide leading-loose md:leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {thirdBlockText}
               </p>
             </div>
