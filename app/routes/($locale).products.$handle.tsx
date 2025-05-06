@@ -1,6 +1,6 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Image, Video} from '@shopify/hydrogen';
-import {useLoaderData, type MetaFunction} from '@remix-run/react';
+import {Link, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
   getSelectedProductOptions,
   Analytics,
@@ -12,11 +12,18 @@ import {
 import {ProductImage} from '~/components/ProductImage';
 import {animated, useScroll, useSpring} from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
-import type {ProductFragment} from 'storefrontapi.generated';
+import type {
+  ProductFragment,
+  RecommendedProductsQuery,
+} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
-import {memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState, Suspense} from 'react';
 import {Parallax, ParallaxLayer} from '@react-spring/parallax';
-import { useResponsive } from '~/lib/hooks/useResponsive';
+import {useResponsive} from '~/lib/hooks/useResponsive';
+import {Await} from '@remix-run/react';
+import useEmblaCarousel from 'embla-carousel-react';
+import {EmblaCarouselType} from 'embla-carousel';
+import type {Product} from '@shopify/hydrogen/storefront-api-types';
 
 type Metafield = {
   id: string;
@@ -136,8 +143,49 @@ async function loadCriticalData({
 function loadDeferredData({context, params}: LoaderFunctionArgs) {
   // Put any API calls that is not critical to be available on first page render
   // For example: product reviews, product recommendations, social feeds.
+  const {storefront} = context;
 
-  return {};
+  const {handle} = params;
+
+  if (!handle) {
+    throw new Error('Expected product handle to be defined');
+  }
+
+  const productId = storefront.query(PRODUCT_ID_QUERY, {
+    variables: {
+      handle,
+    },
+  });
+
+  if (!productId) {
+    throw new Error('Expected product id to be defined');
+  }
+
+  const recommendedProducts = storefront
+    .query(PRODUCT_ID_QUERY, {
+      variables: {
+        handle,
+      },
+    })
+    .then((product) => {
+      if (!product) {
+        return null;
+      }
+
+      return storefront.query(PRODUCT_RECOMMENDATIONS_QUERY, {
+        variables: {
+          productId: product.product.id,
+        },
+      });
+    })
+    .catch((error: Error) => {
+      console.error(error);
+      return null;
+    });
+
+  return {
+    recommendedProducts,
+  };
 }
 
 export default function Product() {
@@ -197,6 +245,7 @@ export default function Product() {
       />
       <AnimatedHeading productCopy={productCopy} />
       <ProductHistory productCopy={productCopy} />
+      <YouMayAlsoLike />
       <Analytics.ProductView
         data={{
           products: [
@@ -315,7 +364,7 @@ const ProductDescription = memo(function ProductDescription({
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
       const startThreshold = isMobile ? 0.15 : 0.05; // Keep the start point
-      const endThreshold = isMobile ? 0.3 : 0.3; // NEW: Define the animation end point
+      const endThreshold = isMobile ? 0.3 : 0.35; // NEW: Define the animation end point
 
       // Check if we are within the animation range
       if (
@@ -586,9 +635,9 @@ const ProductHistory = memo(function ProductHistory({
   const totalPages = isMobile ? 7 : 4;
 
   return (
-    <>
+    <section className="relative min-h-[100vh]">
       {/* Parallax History Section */}
-      <section className="sticky w-full md:w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
+      <section className="block w-full md:w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
         <Parallax
           key={isMobile ? 'mobile' : 'desktop'}
           pages={totalPages}
@@ -609,7 +658,7 @@ const ProductHistory = memo(function ProductHistory({
             factor={1}
             className="flex items-center justify-center"
           >
-            <div className="flex flex-col items-center gap-y-10 justify-center max-w-full md:max-w-[70%] w-full h-full px-5 py-5">
+            <div className="flex flex-col items-center gap-y-10 justify-center max-w-full md:max-w-[70%] w-full h-full px-2 md:px-5 py-5">
               <h2 className="text-5xl md:text-7xl font-display tracking-tight text-center mb-12 text-gray-100 overflow-hidden">
                 {headingText}
               </h2>
@@ -664,9 +713,9 @@ const ProductHistory = memo(function ProductHistory({
             offset={isMobile ? 1 : 1}
             speed={isMobile ? 0.4 : 0.7}
             factor={isMobile ? 1.5 : 1}
-            className="flex items-center justify-center md:justify-end px-5 md:px-20"
+            className="flex items-center justify-center md:justify-end px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[500px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['first-block']['image_url']
@@ -699,9 +748,9 @@ const ProductHistory = memo(function ProductHistory({
             offset={isMobile ? 3 : 2}
             speed={0.7}
             factor={isMobile ? 1.5 : 1}
-            className="flex items-center justify-center md:justify-start px-5 md:px-20"
+            className="flex items-center justify-center md:justify-start px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[400px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
               <Video
                 data={{
                   sources: [
@@ -744,9 +793,9 @@ const ProductHistory = memo(function ProductHistory({
             offset={isMobile ? 5 : 3}
             speed={0.7}
             factor={isMobile ? 1.5 : 1}
-            className="flex items-center justify-center md:justify-end px-5 md:px-20"
+            className="flex items-center justify-center md:justify-end px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[500px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['third-block']['image_url']
@@ -759,7 +808,110 @@ const ProductHistory = memo(function ProductHistory({
           </ParallaxLayer>
         </Parallax>
       </section>
-    </>
+    </section>
+  );
+});
+
+function YouMayAlsoLike() {
+  const {recommendedProducts} = useLoaderData<typeof loader>();
+
+  console.log(recommendedProducts);
+  return (
+    <section className="flex flex-col items-center justify-center w-full max-h-full h-full mx-auto overflow-hidden">
+      <div className="flex flex-col items-start justify-between md:justify-center relative w-full h-full overflow-hidden">
+        <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
+          {/* First set of titles */}
+          <span className="block overflow-hidden">
+            {[...Array(3)].map((_, i) => (
+              <animated.span
+                key={i}
+                className="inline-flex justify-center items-center uppercase text-[80px] md:text-[100px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate"
+              >
+                <span className="mr-5">You May Also Like</span>
+                <span className="bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 ml-5 animate-rotate">
+                  <span className="text-transparent">⊛</span>
+                </span>
+              </animated.span>
+            ))}
+          </span>
+          {/* Duplicate set to create seamless loop */}
+          <span className="block overflow-hidden">
+            {[...Array(3)].map((_, i) => (
+              <animated.span
+                key={`dup-${i}`}
+                className="inline-flex justify-center items-center uppercase text-[80px] md:text-[100px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate"
+              >
+                <span className="mr-5">You May Also Like</span>
+                <span className="bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 ml-5 animate-rotate">
+                  <span className="text-transparent">⊛</span>
+                </span>
+              </animated.span>
+            ))}
+          </span>
+        </h1>
+      </div>
+      <Suspense fallback={<div>Loading recommended products...</div>}>
+        <Await resolve={recommendedProducts}>
+          {(data) => <ProductCarousel products={data?.productRecommendations || []} />}
+        </Await>
+      </Suspense>
+    </section>
+  );
+}
+
+const ProductCarousel = memo(function ProductCarousel({
+  products,
+}: {
+  products: Product[];
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({dragFree: true});
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
+
+  const onScroll = useCallback((emblaApi: EmblaCarouselType) => {
+    const progress = Math.max(0, Math.min(1, emblaApi?.scrollProgress() || 0));
+    setScrollProgress(progress);
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    onScroll(emblaApi);
+    emblaApi
+      .on('reInit', onScroll)
+      .on('scroll', onScroll)
+      .on('slideFocus', onScroll);
+
+    return () => {
+      emblaApi.off('reInit', onScroll);
+      emblaApi.off('scroll', onScroll);
+      emblaApi.off('slideFocus', onScroll);
+    };
+  }, [emblaApi, onScroll]);
+
+  return (
+    <div>
+      <div className="embla__progress">
+        <div
+          className="embla__progress__bar"
+          style={{transform: `translate3d(${scrollProgress * 100}%, 0, 0)`}}
+        ></div>
+      </div>
+      <div ref={emblaRef} className="embla">
+        <ul className="embla__container">
+          {products.map((product) => (
+            <li className="embla__slide mr-10" key={product.id}>
+              <Link to={`/products/${product.handle}`}>
+                <Image
+                  src={product.images.nodes[0].url}
+                  alt={product.title}
+                  className="w-full h-full object-contain cursor-grab"
+                />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 });
 
@@ -859,4 +1011,71 @@ const PRODUCT_QUERY = `#graphql
     }
   }
   ${PRODUCT_FRAGMENT}
+` as const;
+
+const RECOMMENDED_PRODUCTS_QUERY = `#graphql
+  fragment RecommendedProduct on Product {
+    id
+    title
+    handle
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    images(first: 1) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+  }
+  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    products(first: 8, sortKey: UPDATED_AT, reverse: true) {
+      nodes {
+        ...RecommendedProduct
+      }
+    }
+  }
+` as const;
+
+const PRODUCT_RECOMMENDATIONS_QUERY = `#graphql
+  fragment ProductRecommendation on Product {
+    id
+    title
+    handle
+    priceRange {
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    images(first: 1) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
+  }
+  query productRecommendations($productId: ID) {
+    productRecommendations(productId: $productId) {
+      ...ProductRecommendation
+    }
+  }
+`;
+
+const PRODUCT_ID_QUERY = `#graphql
+  query ProductId($handle: String!) {
+    product(handle: $handle) {
+      id
+    }
+  }
 ` as const;
