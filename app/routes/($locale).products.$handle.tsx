@@ -1,5 +1,4 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Image, Video} from '@shopify/hydrogen';
 import {Link, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {
   getSelectedProductOptions,
@@ -8,6 +7,8 @@ import {
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
   Money,
+  Image,
+  Video,
 } from '@shopify/hydrogen';
 import {ProductImage} from '~/components/ProductImage';
 import {animated, useScroll, useSpring} from '@react-spring/web';
@@ -852,7 +853,9 @@ function YouMayAlsoLike() {
       </div>
       <Suspense fallback={<div>Loading recommended products...</div>}>
         <Await resolve={recommendedProducts}>
-          {(data) => <ProductCarousel products={data?.productRecommendations || []} />}
+          {(data) => (
+            <ProductCarousel products={data?.productRecommendations || []} />
+          )}
         </Await>
       </Suspense>
     </section>
