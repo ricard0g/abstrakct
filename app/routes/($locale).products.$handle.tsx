@@ -10,16 +10,13 @@ import {
   Money,
 } from '@shopify/hydrogen';
 import {ProductImage} from '~/components/ProductImage';
-import {
-  animated,
-  useScroll,
-  useSpring,
-} from '@react-spring/web';
+import {animated, useScroll, useSpring} from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
-import {memo, useCallback, useMemo} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {Parallax, ParallaxLayer} from '@react-spring/parallax';
+import { useResponsive } from '~/lib/hooks/useResponsive';
 
 type Metafield = {
   id: string;
@@ -245,7 +242,7 @@ const ProductHero = memo(function ProductHero({
 
   return (
     <section className="flex flex-col items-center justify-center w-full max-h-full h-[80vh] mx-auto overflow-hidden -z-20">
-      <div className="flex flex-col items-start justify-center relative w-full h-full overflow-hidden">
+      <div className="flex flex-col items-start justify-between md:justify-center relative w-full h-full overflow-hidden">
         <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
           <span className="block overflow-hidden">
@@ -273,9 +270,15 @@ const ProductHero = memo(function ProductHero({
           </span>
         </h1>
         <div className="block overflow-hidden">
-          <animated.h2 style={textSprings} className="my-0">
+          <animated.h2
+            style={textSprings}
+            className="flex items-end justify-between md:block my-0"
+          >
+            <span className="block max-w-1/2 md:w-auto md:hidden text-2xl text-zinc-500">
+              {title}
+            </span>
             <Money
-              className="text-6xl"
+              className="text-4xl md:text-6xl"
               data={
                 selectedVariant?.price ?? {amount: '0', currencyCode: 'EUR'}
               }
@@ -294,6 +297,13 @@ const ProductDescription = memo(function ProductDescription({
   metafields: Metafield[];
   productCopy: ProductCopy | null;
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(
+    () => (window.innerWidth < 768 ? setIsMobile(true) : setIsMobile(false)),
+    [],
+  );
+
   const [textSprings, textApi] = useSpring(() => ({
     y: '100%', // Start fully hidden
   }));
@@ -309,10 +319,10 @@ const ProductDescription = memo(function ProductDescription({
 
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
-      const startThreshold = 0.15; // Keep the start point
-      const endThreshold = 0.3; // NEW: Define the animation end point
+      const startThreshold = isMobile ? 0.15 : 0.05; // Keep the start point
+      const endThreshold = isMobile ? 0.3 : 0.3; // NEW: Define the animation end point
 
-      // Check if we are within the animation range [0.2, 0.3]
+      // Check if we are within the animation range
       if (
         scrollYProgress >= startThreshold &&
         scrollYProgress <= endThreshold
@@ -344,9 +354,9 @@ const ProductDescription = memo(function ProductDescription({
   });
 
   const paintingLocation: string | undefined = useMemo(
-    () => metafields.find(
-      (metafield) => metafield?.key === 'painting_location',
-    )?.value,
+    () =>
+      metafields.find((metafield) => metafield?.key === 'painting_location')
+        ?.value,
     [metafields],
   );
   const style: string | undefined = useMemo(
@@ -367,21 +377,21 @@ const ProductDescription = memo(function ProductDescription({
   );
 
   return (
-    <div className="flex items-center justify-between w-full my-[100px] overflow-y-auto relative">
+    <div className="flex flex-col md:flex-row items-center justify-between w-full my-12 md:my-[100px] overflow-y-auto relative">
       {/* Ensure content inside is taller than h-[500px] to allow scrolling */}
-      <div className="flex flex-col gap-5 max-w-[35%]">
-        <h2 className="block relative text-7xl font-display tracking-tighter overflow-hidden">
+      <div className="flex flex-col gap-5 w-full md:max-w-[35%]">
+        <h2 className="block relative text-4xl md:text-7xl font-display tracking-tighter overflow-hidden">
           <animated.span style={textSprings} className="inline-block">
             {productCopy?.['description-section']['concise-heading']}
           </animated.span>
         </h2>
-        <p className="text-lg tracking-wide text-pretty overflow-hidden">
+        <p className="text-base md:text-lg tracking-wide text-pretty overflow-hidden">
           <animated.span style={textSprings} className="inline-block">
             {productCopy?.['description-section']['concise-description']}
           </animated.span>
         </p>
       </div>
-      <div className="max-w-[35%] w-full">
+      <div className="w-full my-6 md:my-0 md:max-w-[35%] ">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="block overflow-hidden">
@@ -538,11 +548,11 @@ const AnimatedHeading = memo(function AnimatedHeading({
   });
 
   return (
-    <section className="relative bg-white flex items-center justify-center w-full h-full my-72 z-[2]">
-      <h2 className="flex items-center justify-center text-8xl font-display tracking-tighter overflow-hidden">
+    <section className="relative bg-white flex items-center justify-center w-full h-full my-24 md:my-72 z-[2]">
+      <h2 className="flex items-center justify-center text-6xl md:text-8xl font-display tracking-tighter overflow-hidden">
         <animated.span
           style={textSprings}
-          className="inline-block max-w-3/5 mx-auto text-center "
+          className="inline-block w-full md:max-w-3/5 mx-auto text-center "
         >
           {productCopy?.['animated-heading']}
         </animated.span>
@@ -556,6 +566,8 @@ const ProductHistory = memo(function ProductHistory({
 }: {
   productCopy: ProductCopy | null;
 }) {
+  const {isMobile} = useResponsive();
+
   const headingText = useMemo(
     () => productCopy?.['history-section']?.['heading'] || '',
     [productCopy],
@@ -576,12 +588,15 @@ const ProductHistory = memo(function ProductHistory({
     [productCopy],
   );
 
+  const totalPages = isMobile ? 7 : 4;
+
   return (
     <>
       {/* Parallax History Section */}
-      <section className="sticky w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
+      <section className="sticky w-full md:w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
         <Parallax
-          pages={4}
+          key={isMobile ? 'mobile' : 'desktop'}
+          pages={totalPages}
           className="absolute top-0 left-0 w-full h-full bg-zinc-900 border-[1px] border-zinc-700 rounded-lg overflow-hidden [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-500 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-gray-500 [&::-webkit-scrollbar-thumb:hover]:bg-zinc-400 scrollbar-thin scrollbar-track-zinc-800 scrollbar-thumb-zinc-500"
           style={{
             backgroundColor: '#18181b',
@@ -595,41 +610,68 @@ const ProductHistory = memo(function ProductHistory({
           {/* Heading - Section 1 */}
           <ParallaxLayer
             offset={0}
-            speed={0.2}
+            speed={isMobile ? 0.2 : 0.1}
             factor={1}
             className="flex items-center justify-center"
           >
-            <div className="flex flex-col items-center justify-center max-w-[70%] w-full h-full px-5 py-5">
-              <h2 className="text-7xl font-display tracking-tight text-center mb-12 text-gray-100 overflow-hidden">
+            <div className="flex flex-col items-center gap-y-10 justify-center max-w-full md:max-w-[70%] w-full h-full px-5 py-5">
+              <h2 className="text-5xl md:text-7xl font-display tracking-tight text-center mb-12 text-gray-100 overflow-hidden">
                 {headingText}
               </h2>
+              <p className="flex flex-col items-center gap-x-2 text-gray-100 text-base md:text-2xl tracking-wide text-center ">
+                <span className="inline-block">Scroll</span>
+                <span className="inline-block">
+                  <svg
+                    width="20px"
+                    height="20px"
+                    viewBox="0 0 1024 1024"
+                    className="icon"
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="#ffffff"
+                  >
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    ></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path
+                        d="M903.232 256l56.768 50.432L512 768 64 306.432 120.768 256 512 659.072z"
+                        fill="#fff"
+                      ></path>
+                    </g>
+                  </svg>
+                </span>
+              </p>
             </div>
           </ParallaxLayer>
 
           {/* First Block - Section 2 */}
           <ParallaxLayer
-            offset={1}
-            speed={0.1}
+            offset={isMobile ? 2 : 1}
+            speed={isMobile ? 0.3 : 0.1}
             factor={1}
-            className="flex items-center justify-start px-20"
+            className="flex items-center justify-center md:justify-start px-5 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div className="flex flex-col items-center justify-center max-w-full md:max-w-1/3 w-full h-full">
+              <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 History
               </h3>
-              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {firstBlockText}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
-            offset={1}
-            speed={0.7}
-            factor={1}
-            className="flex items-center justify-end px-20"
+            offset={isMobile ? 1 : 1}
+            speed={isMobile ? 0.4 : 0.7}
+            factor={isMobile ? 1.5 : 1}
+            className="flex items-center justify-center md:justify-end px-5 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[500px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['first-block']['image_url']
@@ -643,28 +685,28 @@ const ProductHistory = memo(function ProductHistory({
 
           {/* Second Block - Section 3 */}
           <ParallaxLayer
-            offset={2}
+            offset={isMobile ? 4 : 2}
             speed={0.1}
             factor={1}
-            className="flex items-center justify-end px-20"
+            className="flex items-center justify-center md:justify-end px-5 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div className="flex flex-col items-center justify-center max-w-full md:max-w-1/3 w-full h-full">
+              <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 The Process
               </h3>
-              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {secondBlockText}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
-            offset={2}
+            offset={isMobile ? 3 : 2}
             speed={0.7}
-            factor={1}
-            className="flex items-center justify-start px-20"
+            factor={isMobile ? 1.5 : 1}
+            className="flex items-center justify-center md:justify-start px-5 md:px-20"
           >
-            <div className="flex items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[400px] md:max-h-[700px] h-full">
               <Video
                 data={{
                   sources: [
@@ -688,28 +730,28 @@ const ProductHistory = memo(function ProductHistory({
 
           {/* Third Block - Section 4 */}
           <ParallaxLayer
-            offset={3}
+            offset={isMobile ? 6 : 3}
             speed={0.1}
             factor={1}
-            className="flex items-center justify-start px-20"
+            className="flex items-center justify-center md:justify-start px-5 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-1/3 w-full h-full">
-              <h3 className="w-full text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
+            <div className="flex flex-col items-center justify-center max-w-full md:max-w-1/3 w-full h-full">
+              <h3 className="w-full text-4xl md:text-6xl font-display text-left tracking-tighter mb-10 pb-2 overflow-hidden text-gray-200">
                 More History
               </h3>
-              <p className="text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
+              <p className="text-lg md:text-2xl tracking-wide leading-relaxed text-pretty overflow-hidden text-gray-300">
                 {thirdBlockText}
               </p>
             </div>
           </ParallaxLayer>
 
           <ParallaxLayer
-            offset={3}
+            offset={isMobile ? 5 : 3}
             speed={0.7}
-            factor={1}
-            className="flex items-center justify-end px-20"
+            factor={isMobile ? 1.5 : 1}
+            className="flex items-center justify-center md:justify-end px-5 md:px-20"
           >
-            <div className="flex items-center justify-center max-w-7/12 w-6/12 max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[500px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['third-block']['image_url']

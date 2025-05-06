@@ -32,11 +32,11 @@ aside {
   background: var(--color-light);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
   height: 100vh;
-  max-width: var(--aside-width);
-  min-width: var(--aside-width);
+  max-width: 100%;
+  min-width: 100%;
   position: fixed;
   right: calc(-1 * var(--aside-width));
-  top: 0;
+  top: 64px;
   transition: transform 200ms ease-in-out;
 }
 

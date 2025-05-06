@@ -20,7 +20,7 @@ export function AddToCartButton({
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[3]">
+    <div className="fixed bottom-3 w-full md:w-fit md:bottom-24 left-1/2 -translate-x-1/2 z-[3]">
       <CartForm
         route="/cart"
         inputs={{lines}}
@@ -40,7 +40,7 @@ export function AddToCartButton({
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               className={`
-                relative overflow-hidden px-8 py-3 text-lg font-medium tracking-wide
+                relative left-1/2 -translate-x-1/2 overflow-hidden w-11/12 md:w-fit px-8 py-3 text-lg font-medium tracking-wide
                 ${disabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white'}
                 rounded-full shadow-md transition-all duration-300 ease-in-out
                 hover:shadow-lg hover:scale-105 active:scale-95
