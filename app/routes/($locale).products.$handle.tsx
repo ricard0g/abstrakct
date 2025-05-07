@@ -360,7 +360,7 @@ const ProductDescription = memo(function ProductDescription({
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
       const startThreshold = isMobile ? 0.15 : 0.05; // Keep the start point
-      const endThreshold = isMobile ? 0.3 : 0.35; // NEW: Define the animation end point
+      const endThreshold = isMobile ? 0.3 : 0.2; // NEW: Define the animation end point
 
       // Check if we are within the animation range
       if (
@@ -564,8 +564,8 @@ const AnimatedHeading = memo(function AnimatedHeading({
     onChange: ({value: {scrollYProgress}}) => {
       let yValue = -100;
       let opacityValue = 0;
-      const startThreshold = 0.3;
-      const endThreshold = 0.5;
+      const startThreshold = 0.2;
+      const endThreshold = 0.4;
 
       if (
         scrollYProgress >= startThreshold &&
