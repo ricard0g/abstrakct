@@ -1,13 +1,10 @@
 import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
-import {useState, useRef, useEffect, Suspense, useMemo, useCallback} from 'react';
+import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
+import { aspectRatio } from '~/lib/utils/utils';
 import Spinner from './Spinner';
-
-function aspectRatio(width: number, height: number) {
-  return width / height;
-}
 
 export default function ProductGrid({
   products,

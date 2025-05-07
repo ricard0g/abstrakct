@@ -1,10 +1,7 @@
 import type {ProductVariantFragment} from 'storefrontapi.generated';
 import {Image} from '@shopify/hydrogen';
 import {animated, useScroll, useSpring} from '@react-spring/web';
-
-function aspectRatio(width: number, height: number) {
-  return width / height;
-}
+import { aspectRatio } from '~/lib/utils/utils';
 
 export function ProductImage({
   image,
