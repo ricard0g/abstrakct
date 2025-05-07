@@ -32,7 +32,7 @@ export default async function handleRequest(
     {
       nonce,
       signal: request.signal,
-      onError(error) {
+      onError(error: Error) {
         console.error(error);
         responseStatusCode = 500;
       },
