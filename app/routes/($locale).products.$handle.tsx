@@ -15,7 +15,7 @@ import {animated, useScroll, useSpring} from '@react-spring/web';
 import {AddToCartButton} from '~/components/AddToCartButton';
 import type {
   ProductFragment,
-  RecommendedProductsQuery,
+  ProductRecommendationsQuery,
 } from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {memo, useCallback, useEffect, useMemo, useState, Suspense} from 'react';
@@ -25,6 +25,7 @@ import {Await} from '@remix-run/react';
 import useEmblaCarousel from 'embla-carousel-react';
 import {EmblaCarouselType} from 'embla-carousel';
 import type {Product} from '@shopify/hydrogen/storefront-api-types';
+import { useStableIds } from '~/lib/hooks/useStableIds';
 
 type Metafield = {
   id: string;
@@ -169,7 +170,7 @@ function loadDeferredData({context, params}: LoaderFunctionArgs) {
       },
     })
     .then((product) => {
-      if (!product) {
+      if (!product || !product.product) {
         return null;
       }
 
@@ -296,27 +297,21 @@ const ProductHero = memo(function ProductHero({
         <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
           <span className="block overflow-hidden">
-            {[...Array(1)].map((_, i) => (
-              <animated.span
-                style={textSprings}
-                key={i}
-                className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
-              >
-                {title}
-              </animated.span>
-            ))}
+            <animated.span
+              style={textSprings}
+              className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+            >
+              {title}
+            </animated.span>
           </span>
           {/* Duplicate set to create seamless loop */}
           <span className="block overflow-hidden">
-            {[...Array(1)].map((_, i) => (
-              <animated.span
-                style={textSprings}
-                key={`dup-${i}`}
-                className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
-              >
-                {title}
-              </animated.span>
-            ))}
+            <animated.span
+              style={textSprings}
+              className="inline-block text-[100px] md:text-[200px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mx-5 animate-bg-rotate -z-20"
+            >
+              {title}
+            </animated.span>
           </span>
         </h1>
         <div className="block w-full overflow-hidden">
@@ -360,7 +355,7 @@ const ProductDescription = memo(function ProductDescription({
   useScroll({
     onChange: ({value: {scrollYProgress}}) => {
       // Log the scroll progress relative to the page
-      console.log('Global scrollYProgress:', scrollYProgress);
+      // console.log('Global scrollYProgress:', scrollYProgress);
 
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
@@ -816,16 +811,17 @@ const ProductHistory = memo(function ProductHistory({
 function YouMayAlsoLike() {
   const {recommendedProducts} = useLoaderData<typeof loader>();
 
-  console.log(recommendedProducts);
+  const ids = useStableIds(3);
+
   return (
     <section className="flex flex-col items-center justify-center w-full max-h-full h-full mx-auto overflow-hidden">
       <div className="flex flex-col items-start justify-between md:justify-center relative w-full h-full overflow-hidden">
         <h2 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
           <span className="block overflow-hidden">
-            {[...Array(3)].map((_, i) => (
+            {ids.map((id) => (
               <animated.span
-                key={i}
+                key={id}
                 className="inline-flex justify-center items-center uppercase text-[50px] md:text-[100px] text-transparent bg-clip-text bg-gradient-to-br from-stone-900 via-zinc-500 to-gray-800 bg-[size:200%_200%] font-display font-normal mt-14 md:mt-0 mx-5 animate-bg-rotate"
               >
                 <span className="mr-5">You May Also Like</span>
@@ -837,9 +833,9 @@ function YouMayAlsoLike() {
           </span>
           {/* Duplicate set to create seamless loop */}
           <span className="block overflow-hidden">
-            {[...Array(3)].map((_, i) => (
+            {ids.map((id) => (
               <animated.span
-                key={`dup-${i}`}
+                key={id}
                 className="inline-flex justify-center items-center uppercase text-[50px] md:text-[100px] text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-gray-500 to-neutral-800 bg-[size:200%_200%] font-display font-normal mt-14 md:mt-0 mx-5 animate-bg-rotate"
               >
                 <span className="mr-5">You May Also Like</span>
@@ -865,7 +861,7 @@ function YouMayAlsoLike() {
 const ProductCarousel = memo(function ProductCarousel({
   products,
 }: {
-  products: Product[];
+  products: ProductRecommendationsQuery['productRecommendations'];
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     dragFree: true,
@@ -902,7 +898,7 @@ const ProductCarousel = memo(function ProductCarousel({
     <div className="w-full">
       <div ref={emblaRef} className="embla">
         <ul className="embla__container">
-          {products.map((product) => (
+          {products?.map((product) => (
             <li
               className="embla__slide group scale-95 hover:scale-100 transition-all duration-300 mr-10"
               key={product.id}
