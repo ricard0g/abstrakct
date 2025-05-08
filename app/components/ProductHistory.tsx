@@ -114,7 +114,7 @@ export const ProductHistory = memo(function ProductHistory({
             factor={isMobile ? 1.5 : 1}
             className="flex items-center justify-center md:justify-end px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[400px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['first-block']['image_url']
@@ -149,7 +149,7 @@ export const ProductHistory = memo(function ProductHistory({
             factor={isMobile ? 1.5 : 1}
             className="flex items-center justify-center md:justify-start px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[400px] md:max-h-[700px] h-full">
               <Video
                 data={{
                   sources: [
@@ -194,7 +194,7 @@ export const ProductHistory = memo(function ProductHistory({
             factor={isMobile ? 1.5 : 1}
             className="flex items-center justify-center md:justify-end px-2 md:px-20"
           >
-            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[600px] md:max-h-[700px] h-full">
+            <div className="flex flex-col items-center justify-center max-w-full w-full md:max-w-7/12 md:w-6/12 max-h-[400px] md:max-h-[700px] h-full">
               <Image
                 src={
                   productCopy?.['history-section']['third-block']['image_url']

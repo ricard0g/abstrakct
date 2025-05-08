@@ -139,6 +139,7 @@ export const ProductCarousel = memo(function ProductCarousel({
                     src={product.images.nodes[0].url}
                     alt={product.title}
                     className="w-full max-h-full h-full object-contain cursor-grab"
+                    loading="lazy"
                   />
                 </Link>
                 <figcaption className="relative w-full flex items-end justify-between overflow-hidden">
