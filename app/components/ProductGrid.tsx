@@ -3,7 +3,7 @@ import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/_index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
-import {aspectRatio, locale} from '~/lib/utils/utils';
+import {aspectRatio} from '~/lib/utils/utils';
 import Spinner from './Spinner';
 
 export default function ProductGrid({

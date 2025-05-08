@@ -1,9 +1,11 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, Link, type MetaFunction} from '@remix-run/react';
+import {useLoaderData, Link, type MetaFunction, Await} from '@remix-run/react';
 import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
 import type {ProductItemFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {Suspense} from 'react';
+import ProductGrid from '~/components/ProductGrid';
 
 export const meta: MetaFunction<typeof loader> = () => {
   return [{title: `Abstrakct | Products`}];
@@ -25,17 +27,17 @@ export async function loader(args: LoaderFunctionArgs) {
  */
 async function loadCriticalData({context, request}: LoaderFunctionArgs) {
   const {storefront} = context;
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 8,
-  });
+  // const paginationVariables = getPaginationVariables(request, {
+  //   pageBy: 8,
+  // });
 
   const [{products}] = await Promise.all([
-    storefront.query(CATALOG_QUERY, {
-      variables: {...paginationVariables},
+    storefront.query(ALL_PRODUCTS_QUERY, {
+      variables: {first: 12},
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
-  return {products};
+  return {products: products.nodes};
 }
 
 /**
@@ -53,7 +55,7 @@ export default function Collection() {
   return (
     <div className="collection">
       <h1>Products</h1>
-      <PaginatedResourceSection
+      {/* <PaginatedResourceSection
         connection={products}
         resourcesClassName="products-grid"
       >
@@ -64,7 +66,20 @@ export default function Collection() {
             loading={index < 8 ? 'eager' : undefined}
           />
         )}
-      </PaginatedResourceSection>
+      </PaginatedResourceSection> */}
+      <Suspense fallback={<Loading />}>
+        <Await resolve={products}>
+          {(products) => <ProductGrid products={products} />}
+        </Await>
+      </Suspense>
+    </div>
+  );
+}
+
+function Loading() {
+  return (
+    <div>
+      <h1 className="text-black">Loading...</h1>
     </div>
   );
 }
@@ -152,3 +167,29 @@ const CATALOG_QUERY = `#graphql
   }
   ${PRODUCT_ITEM_FRAGMENT}
 ` as const;
+
+const ALL_PRODUCTS_QUERY = `#graphql
+  query getProducts($first: Int) {
+    products(first: $first) {
+        nodes {
+          description
+          featuredImage {
+            altText
+            id
+            url
+            height
+            width
+          }
+          handle
+          id
+          title
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+  }
+`;

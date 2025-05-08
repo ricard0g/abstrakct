@@ -78,6 +78,7 @@ export function ProductImage({
         data={image}
         key={image.id}
         sizes="(min-width: 45em) 50vw, 100vw"
+        loading="eager"
         className="max-w-full max-h-full h-auto w-full object-contain rounded-lg z-50"
       />
     </animated.figure>
