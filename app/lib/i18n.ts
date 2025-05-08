@@ -18,5 +18,7 @@ export function getLocaleFromRequest(request: Request): I18nLocale {
     [language, country] = firstPathPart.split('-') as I18nFromUrl;
   }
 
+  console.log({language, country, pathPrefix});
+
   return {language, country, pathPrefix};
 }

@@ -1,9 +1,9 @@
-import {Link} from '@remix-run/react';
+import {Link, useMatches} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
-import {aspectRatio, locale} from '~/lib/utils/utils';
+import {aspectRatio} from '~/lib/utils/utils';
 import Spinner from './Spinner';
 
 export default function ProductGrid({
@@ -50,6 +50,9 @@ function GridLoader() {
 function ProductItem({product}: {product: any}) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
+
+  const matches = useMatches();
+  const locale = matches.find((match) => match.params.locale)?.params.locale;
 
   const [setInViewRef, springs] = useInView(
     () => ({
@@ -106,7 +109,14 @@ function ProductItem({product}: {product: any}) {
       }`}
     >
       <figure className="w-full h-full m-0 relative">
-        <Link to={`/products/${product.handle}`} prefetch="intent">
+        <Link
+          to={
+            locale
+              ? `/${locale}/products/${product.handle}`
+              : `/products/${product.handle}`
+          }
+          prefetch="intent"
+        >
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
               <Spinner
