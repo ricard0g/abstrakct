@@ -2,4 +2,4 @@ export function aspectRatio(width: number, height: number) {
   return width / height;
 }
 
-export const locale = 'EN-US';
+export const locale = 'en-us';

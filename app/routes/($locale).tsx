@@ -3,6 +3,8 @@ import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
 export async function loader({params, context}: LoaderFunctionArgs) {
   const {language, country} = context.storefront.i18n;
 
+  console.log(`${language}-${country}`.toLowerCase());
+
   if (
     params.locale &&
     params.locale.toLowerCase() !== `${language}-${country}`.toLowerCase()
