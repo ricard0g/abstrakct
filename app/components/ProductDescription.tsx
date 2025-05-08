@@ -29,8 +29,8 @@ export const ProductDescription = memo(function ProductDescription({
 
       let widthValue = 0;
       let yValue = 100; // Default to 100% (hidden)
-      const startThreshold = isMobile ? 0.15 : 0.05; // Keep the start point
-      const endThreshold = isMobile ? 0.3 : 0.2; // NEW: Define the animation end point
+      const startThreshold = isMobile ? 0.15 : 0.08; // Keep the start point
+      const endThreshold = isMobile ? 0.3 : 0.22; // NEW: Define the animation end point
 
       // Check if we are within the animation range
       if (

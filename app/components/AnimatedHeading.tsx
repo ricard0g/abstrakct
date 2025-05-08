@@ -22,7 +22,7 @@ export const AnimatedHeading = memo(function AnimatedHeading({
     onChange: ({value: {scrollYProgress}}) => {
       let yValue = -100;
       let opacityValue = 0;
-      const startThreshold = 0.2;
+      const startThreshold = 0.22;
       const endThreshold = 0.4;
 
       if (

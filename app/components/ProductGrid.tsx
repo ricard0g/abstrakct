@@ -3,7 +3,7 @@ import {Image, Money} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/($locale)._index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
-import { aspectRatio } from '~/lib/utils/utils';
+import {aspectRatio, locale} from '~/lib/utils/utils';
 import Spinner from './Spinner';
 
 export default function ProductGrid({
@@ -12,18 +12,18 @@ export default function ProductGrid({
   products: Awaited<ReturnType<IndexLoader>>['products'];
 }) {
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     // Set loading to false after products are available
     if (products && products.length > 0) {
       setLoading(false);
     }
   }, [products]);
-  
+
   if (loading) {
     return <GridLoader />;
   }
-  
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
       {products.map((product: any) => {
@@ -36,10 +36,10 @@ export default function ProductGrid({
 function GridLoader() {
   return (
     <div className="w-full h-96 flex items-center justify-center">
-      <Spinner 
-        size={80} 
-        color="#000000" 
-        secondaryColor="#e5e5e5" 
+      <Spinner
+        size={80}
+        color="#000000"
+        secondaryColor="#e5e5e5"
         thickness={4}
         className="animate-pulse"
       />
@@ -50,7 +50,7 @@ function GridLoader() {
 function ProductItem({product}: {product: any}) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  
+
   const [setInViewRef, springs] = useInView(
     () => ({
       from: {
@@ -76,14 +76,14 @@ function ProductItem({product}: {product: any}) {
       once: true,
     },
   );
-  
+
   useEffect(() => {
     // Check if image is already cached
     if (imageRef.current && imageRef.current.complete) {
       setImageLoaded(true);
     }
   }, []);
-  
+
   const handleImageLoad = () => {
     setImageLoaded(true);
   };
@@ -96,7 +96,7 @@ function ProductItem({product}: {product: any}) {
       ) > 1,
     [product.featuredImage],
   );
-  
+
   return (
     <animated.div
       ref={setInViewRef}
@@ -106,14 +106,14 @@ function ProductItem({product}: {product: any}) {
       }`}
     >
       <figure className="w-full h-full m-0 relative">
-        <Link to={`/products/${product.handle}`} prefetch="intent">
+        <Link to={`/${locale}/products/${product.handle}`} prefetch="intent">
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
-              <Spinner 
-                size={40} 
-                color="#000000" 
-                secondaryColor="#e5e5e5" 
-                thickness={3} 
+              <Spinner
+                size={40}
+                color="#000000"
+                secondaryColor="#e5e5e5"
+                thickness={3}
               />
             </div>
           )}
@@ -158,9 +158,9 @@ function ParallaxCaption({product}: {product: any}) {
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (!containerRef.current || isMobile) return;
 
-    const rect = containerRef.current.getBoundingClientRect();
-    // Calculate center-relative coordinates (-1 to 1 range)
-    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const rect = containerRef.current.getBoundingClientRect();
+      // Calculate center-relative coordinates (-1 to 1 range)
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
       setCoords({x, y});
     },
