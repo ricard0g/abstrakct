@@ -109,14 +109,7 @@ function ProductItem({product}: {product: any}) {
       }`}
     >
       <figure className="w-full h-full m-0 relative">
-        <Link
-          to={
-            locale
-              ? `/${locale}/products/${product.handle}`
-              : `/products/${product.handle}`
-          }
-          prefetch="intent"
-        >
+        <Link to={`/en-us/products/${product.handle}`} prefetch="intent">
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
               <Spinner
