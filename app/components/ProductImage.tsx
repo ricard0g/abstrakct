@@ -10,7 +10,7 @@ export function ProductImage({
 }) {
   useScroll({
     onChange: ({value: {scrollYProgress}}) => {
-      if (scrollYProgress > 0.09) {
+      if (scrollYProgress > 0.04) {
         if (scrollYProgress > 0.45) {
           imageApi.start({
             scale: 0,

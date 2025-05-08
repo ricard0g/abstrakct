@@ -34,7 +34,7 @@ export const ProductHistory = memo(function ProductHistory({
   const totalPages = isMobile ? 7 : 4;
 
   return (
-    <section className="relative min-h-[100vh]">
+    <section className="relative max-h-[90%] h-[70vh] md:h-[80vh]">
       {/* Parallax History Section */}
       <section className="block w-full md:w-11/12 mx-auto h-[85vh] top-0 mt-10 z-[2]">
         <Parallax

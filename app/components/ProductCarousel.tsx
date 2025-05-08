@@ -43,6 +43,12 @@ export const ProductCarousel = memo(function ProductCarousel({
 
   return (
     <div className="w-full">
+      <div className="embla__progress">
+        <div
+          className="embla__progress__bar"
+          style={{transform: `translate3d(${scrollProgress * 100}%, 0, 0)`}}
+        ></div>
+      </div>
       <div ref={emblaRef} className="embla">
         <ul className="embla__container">
           {products?.map((product) => (
@@ -148,12 +154,6 @@ export const ProductCarousel = memo(function ProductCarousel({
             </li>
           ))}
         </ul>
-      </div>
-      <div className="embla__progress">
-        <div
-          className="embla__progress__bar"
-          style={{transform: `translate3d(${scrollProgress * 100}%, 0, 0)`}}
-        ></div>
       </div>
     </div>
   );

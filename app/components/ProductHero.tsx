@@ -28,7 +28,7 @@ export const ProductHero = memo(function ProductHero({
   );
 
   return (
-    <section className="flex flex-col items-center justify-center w-full max-h-full h-[80vh] mx-auto overflow-hidden -z-20">
+    <section className="flex flex-col items-center justify-center w-full max-h-full h-[70vh] mx-auto overflow-hidden -z-20">
       <div className="flex flex-col items-start justify-between md:justify-center relative w-full h-full overflow-hidden">
         <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
