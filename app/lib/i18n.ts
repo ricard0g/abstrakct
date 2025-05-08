@@ -20,5 +20,5 @@ export function getLocaleFromRequest(request: Request): I18nLocale {
 
   console.log({language, country, pathPrefix: ''});
 
-  return {language, country, pathPrefix: ''};
+  return {language: 'EN', country: 'US', pathPrefix: ''};
 }

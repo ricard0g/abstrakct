@@ -1,6 +1,6 @@
 import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
-import {type IndexLoader} from '~/routes/($locale)._index';
+import {type IndexLoader} from '~/routes/_index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
 import {aspectRatio, locale} from '~/lib/utils/utils';
