@@ -85,7 +85,7 @@ export default function Cursor() {
   return (
     <>
       <div
-        className={`hidden md:block fixed pointer-events-none z-50 rounded-full border mix-blend-difference ${isLink ? 'cursor-link' : ''}`}
+        className={`hidden md:block fixed pointer-events-none z-[52] rounded-full border mix-blend-difference ${isLink ? 'cursor-link' : ''}`}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -102,7 +102,7 @@ export default function Cursor() {
       ></div>
 
       <div
-        className="hidden md:block fixed pointer-events-none z-50 rounded-full"
+        className="hidden md:block fixed pointer-events-none z-[52] rounded-full"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,

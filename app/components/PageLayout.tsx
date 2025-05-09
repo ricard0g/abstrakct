@@ -57,6 +57,8 @@ export function PageLayout({
   );
 }
 
+
+
 function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
   return (
     <Aside type="cart" heading="CART">
