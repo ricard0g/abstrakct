@@ -28,7 +28,7 @@ export default function Layout() {
         <Meta />
         <Links />
       </head>
-      <body className="font-body font-thin cursor-none">
+      <body className="font-body font-thin cursor-none overflow-x-hidden">
         {data ? (
           <Analytics.Provider
             cart={data.cart}
