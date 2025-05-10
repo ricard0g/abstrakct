@@ -49,7 +49,7 @@ export function PageLayout({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hasSeenIntro = sessionStorage.getItem('hasSeenIntro');
-      // For development, force intro:
+      // For development, force intro by uncommenting next line:
       // sessionStorage.removeItem('hasSeenIntro');
       if (!hasSeenIntro) {
         setIntroState('showing');
@@ -57,10 +57,21 @@ export function PageLayout({
         setIntroState('finished');
       }
     } else {
-      // Fallback for SSR, assume intro is finished.
+      // Fallback for SSR or environments without sessionStorage, assume intro is finished.
       setIntroState('finished');
     }
   }, []);
+
+  // Prevent scrolling when intro is present
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (introState === 'loading' || introState === 'showing') {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    }
+  }, [introState]);
 
   const handleIntroComplete = () => {
     if (typeof window !== 'undefined') {

@@ -575,3 +575,30 @@ a {
     margin-top: 8vh;
   }
 }
+
+body {
+  /* Global light theme scrollbar styles */
+  scrollbar-width: thin !important;
+  scrollbar-color: #b0b0b0 #f5f5f5 !important; /* thumb, track */
+}
+
+body::-webkit-scrollbar {
+  width: 4px !important;
+  background: transparent !important;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 8px !important;
+  border: 2px solid #e0e0e000 !important;
+  transition: background 0.2s !important;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: transparent !important;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 8px !important;
+}
