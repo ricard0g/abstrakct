@@ -6,6 +6,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import {Suspense} from 'react';
 import ProductGrid from '~/components/ProductGrid';
+import {Product} from '@shopify/hydrogen/storefront-api-types';
 
 export const meta: MetaFunction<typeof loader> = () => {
   return [{title: `Abstrakct | Products`}];
@@ -17,6 +18,8 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
+
+  console.log('Critical Data', criticalData);
 
   return {...deferredData, ...criticalData};
 }
@@ -30,14 +33,24 @@ async function loadCriticalData({context, request}: LoaderFunctionArgs) {
   // const paginationVariables = getPaginationVariables(request, {
   //   pageBy: 8,
   // });
+  const paginationVariables = getPaginationVariables(request, {
+    pageBy: 6,
+  });
 
-  const [{products}] = await Promise.all([
-    storefront.query(ALL_PRODUCTS_QUERY, {
-      variables: {first: 12},
+  const [{products: nonPaginatedProducts}, {products: paginatedProducts}] = await Promise.all([
+    storefront.query(ALL_PRODUCTS_QUERY_NON_PAGINATED, {
+      variables: {
+        first: 12,
+      },
     }),
-    // Add other queries here, so that they are loaded in parallel
+    storefront.query(ALL_PRODUCTS_QUERY_PAGINATED, {
+      variables: paginationVariables,
+    }),
   ]);
-  return {products: products.nodes};
+
+  console.log('Products Paginated From Collection', paginatedProducts);
+
+  return {products: nonPaginatedProducts.nodes, productsPaginated: paginatedProducts};
 }
 
 /**
@@ -50,7 +63,9 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 }
 
 export default function Collection() {
-  const {products} = useLoaderData<typeof loader>();
+  const {products, productsPaginated} = useLoaderData<typeof loader>();
+
+  console.log('Products Paginated From Collection', productsPaginated);
 
   return (
     <div className="collection">
@@ -116,62 +131,10 @@ function ProductItem({
   );
 }
 
-const PRODUCT_ITEM_FRAGMENT = `#graphql
-  fragment MoneyProductItem on MoneyV2 {
-    amount
-    currencyCode
-  }
-  fragment ProductItem on Product {
-    id
-    handle
-    title
-    featuredImage {
-      id
-      altText
-      url
-      width
-      height
-    }
-    priceRange {
-      minVariantPrice {
-        ...MoneyProductItem
-      }
-      maxVariantPrice {
-        ...MoneyProductItem
-      }
-    }
-  }
-` as const;
-
-// NOTE: https://shopify.dev/docs/api/storefront/2024-01/objects/product
-const CATALOG_QUERY = `#graphql
-  query Catalog(
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-  ) @inContext(country: $country, language: $language) {
+const ALL_PRODUCTS_QUERY_PAGINATED = `#graphql
+  query getAllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {
     products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
       nodes {
-        ...ProductItem
-      }
-      pageInfo {
-        hasPreviousPage
-        hasNextPage
-        startCursor
-        endCursor
-      }
-    }
-  }
-  ${PRODUCT_ITEM_FRAGMENT}
-` as const;
-
-const ALL_PRODUCTS_QUERY = `#graphql
-  query getProducts($first: Int) {
-    products(first: $first) {
-        nodes {
           description
           featuredImage {
             altText
@@ -187,9 +150,40 @@ const ALL_PRODUCTS_QUERY = `#graphql
             minVariantPrice {
               amount
               currencyCode
-            }
           }
-        }
+        }       
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
   }
 `;
+
+const ALL_PRODUCTS_QUERY_NON_PAGINATED = `#graphql
+  query getAllNonPaginatedProducts($first: Int) {
+    products(first: $first) {
+      nodes {
+          description
+          featuredImage {
+            altText
+            id
+            url
+            height
+            width
+          }
+          handle
+          id
+          title
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+          }
+        }       
+      }
+    }
+  }` as const;

@@ -1,5 +1,5 @@
 import {Link} from '@remix-run/react';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image, Money, Pagination} from '@shopify/hydrogen';
 import {type IndexLoader} from '~/routes/_index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated, useInView, easings} from '@react-spring/web';
@@ -25,13 +25,35 @@ export default function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-      {products.map((product: any) => {
-        return <ProductItem key={product.id} product={product} />;
-      })}
-    </div>
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
+        {products.map((product: any) => {
+          return <ProductItem key={product.id} product={product} />;
+        })}
+      </div>
+    </>
   );
 }
+
+// export default function ProductGrid<NodesType>({
+//   connection,
+//   children,
+// }: {
+//   connection: React.ComponentProps<typeof Pagination<NodesType>>['connection'];
+//   children: React.FunctionComponent<{node: NodesType; index: number}>;
+// }) {
+//   return (
+//     <>
+//       <Pagination connection={connection}>
+//       {({nodes, isLoading, PreviousLink, NextLink}) => {
+//         const resourcesMarkup = nodes.map((node, index) => children({node, index}));
+
+//         return resourcesMarkup;
+//       }}
+//       </Pagination>
+//     </>
+//   );
+// }
 
 function GridLoader() {
   return (
