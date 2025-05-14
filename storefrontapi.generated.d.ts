@@ -638,6 +638,10 @@ export type GetAllProductsPaginatedQuery = {
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
+          maxVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
         };
       }
     >;
@@ -664,6 +668,10 @@ export type GetAllNonPaginatedProductsQuery = {
         >;
         priceRange: {
           minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+          maxVariantPrice: Pick<
             StorefrontAPI.MoneyV2,
             'amount' | 'currencyCode'
           >;
@@ -1313,11 +1321,11 @@ interface GeneratedQueryTypes {
     return: StoreCollectionsQuery;
     variables: StoreCollectionsQueryVariables;
   };
-  '#graphql\n  query getAllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n          }\n        }       \n      }\n      pageInfo {\n        hasNextPage\n        hasPreviousPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n': {
+  '#graphql\n  query getAllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n        }       \n      }\n      pageInfo {\n        hasNextPage\n        hasPreviousPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n': {
     return: GetAllProductsPaginatedQuery;
     variables: GetAllProductsPaginatedQueryVariables;
   };
-  '#graphql\n  query getAllNonPaginatedProducts($first: Int) {\n    products(first: $first) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n          }\n        }       \n      }\n    }\n  }': {
+  '#graphql\n  query getAllNonPaginatedProducts($first: Int) {\n    products(first: $first) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n          }\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n        }       \n      }\n    }\n  }': {
     return: GetAllNonPaginatedProductsQuery;
     variables: GetAllNonPaginatedProductsQueryVariables;
   };

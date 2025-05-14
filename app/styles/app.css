@@ -564,7 +564,7 @@ a {
   }
 
   .embla__slide {
-    flex: 0 0 100%;
+    flex: 0 0 80%;
     height: 100%;
     max-height: 100%;
     margin-right: 3vw;

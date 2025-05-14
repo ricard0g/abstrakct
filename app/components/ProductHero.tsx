@@ -28,7 +28,7 @@ export const ProductHero = memo(function ProductHero({
   );
 
   return (
-    <section className="flex flex-col items-center justify-center w-full max-h-full h-[70vh] mx-auto overflow-hidden -z-20">
+    <section className="flex flex-col items-center justify-center w-full max-h-full h-[72.5vh] mx-auto overflow-hidden -z-20">
       <div className="flex flex-col items-start justify-between md:justify-center relative w-full h-full overflow-hidden">
         <h1 className="inline-flex whitespace-nowrap mb-5 animate-carousel">
           {/* First set of titles */}
@@ -55,7 +55,7 @@ export const ProductHero = memo(function ProductHero({
             style={textSprings}
             className="flex items-end justify-between md:block my-0"
           >
-            <span className="block max-w-1/2 md:w-auto md:hidden text-2xl text-zinc-500">
+            <span className="block max-w-1/2 md:w-auto md:hidden text-2xl text-zinc-500 z-50">
               {title}
             </span>
             <Money
