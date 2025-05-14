@@ -1,103 +1,39 @@
 import {Link} from '@remix-run/react';
 import {Image, Money, Pagination} from '@shopify/hydrogen';
-import {type IndexLoader} from '~/routes/_index';
 import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
-import {useSpring, animated, useInView, easings} from '@react-spring/web';
+import {useSpring, animated} from '@react-spring/web';
 import {aspectRatio} from '~/lib/utils/utils';
 import Spinner from './Spinner';
 
-export default function ProductGrid({
-  products,
+export default function ProductGrid<NodesType>({
+  connection,
 }: {
-  products: Awaited<ReturnType<IndexLoader>>['products'];
+  connection: React.ComponentProps<typeof Pagination<NodesType>>['connection'];
 }) {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Set loading to false after products are available
-    if (products && products.length > 0) {
-      setLoading(false);
-    }
-  }, [products]);
-
-  if (loading) {
-    return <GridLoader />;
-  }
-
   return (
-    <>
-      <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-        {products.map((product: any) => {
-          return <ProductItem key={product.id} product={product} />;
-        })}
-      </div>
-    </>
-  );
-}
-
-// export default function ProductGrid<NodesType>({
-//   connection,
-//   children,
-// }: {
-//   connection: React.ComponentProps<typeof Pagination<NodesType>>['connection'];
-//   children: React.FunctionComponent<{node: NodesType; index: number}>;
-// }) {
-//   return (
-//     <>
-//       <Pagination connection={connection}>
-//       {({nodes, isLoading, PreviousLink, NextLink}) => {
-//         const resourcesMarkup = nodes.map((node, index) => children({node, index}));
-
-//         return resourcesMarkup;
-//       }}
-//       </Pagination>
-//     </>
-//   );
-// }
-
-function GridLoader() {
-  return (
-    <div className="w-full h-96 flex items-center justify-center">
-      <Spinner
-        size={80}
-        color="#000000"
-        secondaryColor="#e5e5e5"
-        thickness={4}
-        className="animate-pulse"
-      />
-    </div>
-  );
+    <Pagination connection={connection}>
+      {({nodes, isLoading, PreviousLink, NextLink}) => {
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
+            <PreviousLink>
+              {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
+            </PreviousLink>
+            {nodes.map((node, index) => (
+              <ProductItem key={index} product={node} />
+            ))}
+            <NextLink>
+              {isLoading ? 'Loading...' : <span>Load more ↓</span>}
+            </NextLink>
+          </div>
+        )
+      }}
+    </Pagination>
+  )
 }
 
 function ProductItem({product}: {product: any}) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement | null>(null);
-
-  const [setInViewRef, springs] = useInView(
-    () => ({
-      from: {
-        opacity: 0,
-        scale: 0.9,
-        y: 20,
-      },
-      to: {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-      },
-      delay: 500,
-      config: {
-        mass: 2,
-        tension: 120,
-        friction: 14,
-        easing: easings.easeInOutExpo,
-      },
-    }),
-    {
-      amount: 0.4,
-      once: true,
-    },
-  );
 
   useEffect(() => {
     // Check if image is already cached
@@ -121,8 +57,6 @@ function ProductItem({product}: {product: any}) {
 
   return (
     <animated.div
-      ref={setInViewRef}
-      style={springs}
       className={`relative min-h-[25vh] h-auto md:h-auto col-span-2 hover:border-[1px] rounded-lg hover:border-gray-200 ${
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
       }`}

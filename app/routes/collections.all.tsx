@@ -1,12 +1,9 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, Link, type MetaFunction, Await} from '@remix-run/react';
+import {useLoaderData, Link, type MetaFunction} from '@remix-run/react';
 import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
 import type {ProductItemFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
-import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
-import {Suspense} from 'react';
 import ProductGrid from '~/components/ProductGrid';
-import {Product} from '@shopify/hydrogen/storefront-api-types';
 
 export const meta: MetaFunction<typeof loader> = () => {
   return [{title: `Abstrakct | Products`}];
@@ -37,20 +34,24 @@ async function loadCriticalData({context, request}: LoaderFunctionArgs) {
     pageBy: 6,
   });
 
-  const [{products: nonPaginatedProducts}, {products: paginatedProducts}] = await Promise.all([
-    storefront.query(ALL_PRODUCTS_QUERY_NON_PAGINATED, {
-      variables: {
-        first: 12,
-      },
-    }),
-    storefront.query(ALL_PRODUCTS_QUERY_PAGINATED, {
-      variables: paginationVariables,
-    }),
-  ]);
+  const [{products: nonPaginatedProducts}, {products: paginatedProducts}] =
+    await Promise.all([
+      storefront.query(ALL_PRODUCTS_QUERY_NON_PAGINATED, {
+        variables: {
+          first: 12,
+        },
+      }),
+      storefront.query(ALL_PRODUCTS_QUERY_PAGINATED, {
+        variables: paginationVariables,
+      }),
+    ]);
 
   console.log('Products Paginated From Collection', paginatedProducts);
 
-  return {products: nonPaginatedProducts.nodes, productsPaginated: paginatedProducts};
+  return {
+    products: nonPaginatedProducts.nodes,
+    productsPaginated: paginatedProducts,
+  };
 }
 
 /**
@@ -70,64 +71,8 @@ export default function Collection() {
   return (
     <div className="collection">
       <h1>Products</h1>
-      {/* <PaginatedResourceSection
-        connection={products}
-        resourcesClassName="products-grid"
-      >
-        {({node: product, index}) => (
-          <ProductItem
-            key={product.id}
-            product={product}
-            loading={index < 8 ? 'eager' : undefined}
-          />
-        )}
-      </PaginatedResourceSection> */}
-      <Suspense fallback={<Loading />}>
-        <Await resolve={products}>
-          {(products) => <ProductGrid products={products} />}
-        </Await>
-      </Suspense>
+      <ProductGrid connection={productsPaginated} />
     </div>
-  );
-}
-
-function Loading() {
-  return (
-    <div>
-      <h1 className="text-black">Loading...</h1>
-    </div>
-  );
-}
-
-function ProductItem({
-  product,
-  loading,
-}: {
-  product: ProductItemFragment;
-  loading?: 'eager' | 'lazy';
-}) {
-  const variantUrl = useVariantUrl(product.handle);
-  return (
-    <Link
-      className="product-item"
-      key={product.id}
-      prefetch="intent"
-      to={variantUrl}
-    >
-      {product.featuredImage && (
-        <Image
-          alt={product.featuredImage.altText || product.title}
-          aspectRatio="1/1"
-          data={product.featuredImage}
-          loading={loading}
-          sizes="(min-width: 45em) 400px, 100vw"
-        />
-      )}
-      <h4>{product.title}</h4>
-      <small>
-        <Money data={product.priceRange.minVariantPrice} />
-      </small>
-    </Link>
   );
 }
 
@@ -150,7 +95,11 @@ const ALL_PRODUCTS_QUERY_PAGINATED = `#graphql
             minVariantPrice {
               amount
               currencyCode
-          }
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
         }       
       }
       pageInfo {
@@ -183,6 +132,10 @@ const ALL_PRODUCTS_QUERY_NON_PAGINATED = `#graphql
               amount
               currencyCode
           }
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
         }       
       }
     }
