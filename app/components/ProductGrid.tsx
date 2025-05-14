@@ -15,14 +15,14 @@ export default function ProductGrid<NodesType>({
       {({nodes, isLoading, PreviousLink, NextLink}) => {
         return (
           <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-            <PreviousLink>
-              {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
+            <PreviousLink className='flex justify-center items-center col-span-3 w-full'>
+              {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>↑ Load previous</span>}
             </PreviousLink>
             {nodes.map((node, index) => (
               <ProductItem key={index} product={node} />
             ))}
-            <NextLink>
-              {isLoading ? 'Loading...' : <span>Load more ↓</span>}
+            <NextLink className='flex justify-center items-center col-span-3 w-full'>
+              {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>Load more ↓</span>}
             </NextLink>
           </div>
         )
