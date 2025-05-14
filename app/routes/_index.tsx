@@ -6,7 +6,7 @@ import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
-import ProductItem from "~/components/ProductItem"
+import ProductItem from '~/components/ProductItem';
 
 export type IndexLoader = typeof loader;
 
@@ -42,7 +42,8 @@ async function loadCriticalData({context}: LoaderFunctionArgs) {
   ]);
 
   return {
-    featuredCollection: collections.nodes[0],
+    featuredCollection1: collections.nodes[0],
+    featuredCollection2: collections.nodes[1],
     products: products.nodes,
   };
 }
@@ -73,31 +74,58 @@ export default function Homepage() {
   // Render the main content of the homepage directly.
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
+      <FeaturedCollection
+        firstCollection={data.featuredCollection1}
+        secondCollection={data.featuredCollection2}
+      />
       <RecommendedProducts products={data.recommendedProducts} />
     </div>
   );
 }
 
 function FeaturedCollection({
-  collection,
+  firstCollection,
+  secondCollection,
 }: {
-  collection: FeaturedCollectionFragment;
+  firstCollection: FeaturedCollectionFragment;
+  secondCollection: FeaturedCollectionFragment;
 }) {
-  if (!collection) return null;
-  const image = collection?.image;
+  if (!firstCollection || !secondCollection) return null;
+  const firstImage = firstCollection?.image;
+  const secondImage = secondCollection?.image;
   return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
+    <div className='flex flex-row justify-center items-center md:max-h-[90vh] h-full md:h-screen w-full mb-2 md:mb-10'>
+      <Link
+        className="flex flex-col items-center justify-center w-full md:max-h-screen h-full"
+        to={`/collections/${firstCollection.handle}`}
+      >
+        {firstImage && (
+          <div className="max-w-full w-full max-h-full h-full">
+            <Image
+              data={firstImage}
+              className="max-w-full max-h-full w-full h-full object-contain"
+              sizes="100vw"
+            />
+          </div>
+        )}
+        <h1>{firstCollection.title}</h1>
+      </Link>
+      <Link
+        className="hidden md:flex flex-col items-center justify-center w-full max-h-screen h-full"
+        to={`/collections/${secondCollection.handle}`}
+      >
+        {secondImage && (
+          <div className="max-w-full w-full max-h-full h-full">
+            <Image
+              data={secondImage}
+              className="max-w-full max-h-full w-full h-full object-contain"
+              sizes="100vw"
+            />
+          </div>
+        )}
+        <h1>{secondCollection.title}</h1>
+      </Link>
+    </div>
   );
 }
 
@@ -108,14 +136,18 @@ function RecommendedProducts({
 }) {
   return (
     <div className="recommended-products">
-      <h2 className="text-2xl font-display">Recommended Products</h2>
+      <h2 className="text-lg md:text-2xl font-display">Recommended Products</h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
           {(response) => (
             <div className="recommended-products-grid">
               {response
                 ? response.products.nodes.map((product) => (
-                    <ProductItem key={product.id} product={product} image={product.images.nodes[0]} />
+                    <ProductItem
+                      key={product.id}
+                      product={product}
+                      image={product.images.nodes[0]}
+                    />
                   ))
                 : null}
             </div>
@@ -142,7 +174,7 @@ const FEATURED_COLLECTION_QUERY = `#graphql
   }
   query FeaturedCollection($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
+    collections(first: 2, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection
       }

@@ -55,7 +55,7 @@ export const ProductHero = memo(function ProductHero({
             style={textSprings}
             className="flex items-end justify-between md:block my-0"
           >
-            <span className="block max-w-1/2 md:w-auto md:hidden text-2xl text-zinc-500 z-50">
+            <span className="block max-w-1/2 md:w-auto md:hidden text-2xl text-zinc-500 z-[1]">
               {title}
             </span>
             <Money

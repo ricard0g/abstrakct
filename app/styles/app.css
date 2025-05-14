@@ -179,6 +179,7 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   flex-direction: column;
   grid-gap: 1rem;
+  z-index: 100;
 }
 
 .header-menu-desktop {
@@ -342,7 +343,8 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .featured-collection-image {
-  aspect-ratio: 1 / 1;
+  /* aspect-ratio: 1 / 1; */
+  object-fit: contain;
   @media (min-width: 45em) {
     aspect-ratio: 16 / 9;
   }

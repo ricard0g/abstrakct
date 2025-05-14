@@ -31,7 +31,7 @@ export default function ProductItem({product, image}: {product: any, image?: any
 
   return (
     <animated.div
-      className={`relative flex flex-col justify-center items-center min-h-[25vh] h-auto md:h-auto col-span-1 hover:border-[1px] rounded-lg hover:border-gray-200 ${
+      className={`relative flex flex-col justify-center items-center min-h-[25vh] h-auto col-span-1 rounded-lg group hover:border-gray-200 ${
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
       }`}
     >
@@ -58,7 +58,7 @@ export default function ProductItem({product, image}: {product: any, image?: any
           )}
         </Link>
         <figcaption >
-          <h2 className='text-sm text-center text-pretty'>
+          <h2 className='text-sm text-center text-pretty group-hover:underline'>
             {product.title}
           </h2>
           <Money
