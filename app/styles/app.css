@@ -356,8 +356,8 @@ button.reset:hover:not(:has(> *)) {
 
 .recommended-products-grid {
   display: grid;
-  grid-gap: 1.5rem;
   grid-template-columns: repeat(2, 1fr);
+  place-items: center;
   @media (min-width: 45em) {
     grid-template-columns: repeat(4, 1fr);
   }
