@@ -1,12 +1,14 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link, type MetaFunction} from '@remix-run/react';
-import {Suspense} from 'react';
-import {Image, Money} from '@shopify/hydrogen';
+import {Children, Suspense} from 'react';
+import {Image} from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
 import ProductItem from '~/components/ProductItem';
+import {useInView, animated, useTrail} from '@react-spring/web';
+import {useStableIds} from '~/lib/hooks/useStableIds';
 
 export type IndexLoader = typeof loader;
 
@@ -79,6 +81,7 @@ export default function Homepage() {
         secondCollection={data.featuredCollection2}
       />
       <RecommendedProducts products={data.recommendedProducts} />
+      <CoolText />
     </div>
   );
 }
@@ -94,7 +97,7 @@ function FeaturedCollection({
   const firstImage = firstCollection?.image;
   const secondImage = secondCollection?.image;
   return (
-    <div className='flex flex-row justify-center items-center md:max-h-[90vh] h-full md:h-screen w-full mb-2 md:mb-10'>
+    <div className="flex flex-row justify-center items-center gap-x-2 md:max-h-[80vh] md:min-h-[80vh] h-full md:h-screen w-full mb-2 md:mb-10">
       <Link
         className="flex flex-col items-center justify-center w-full md:max-h-screen h-full"
         to={`/collections/${firstCollection.handle}`}
@@ -103,12 +106,14 @@ function FeaturedCollection({
           <div className="max-w-full w-full max-h-full h-full">
             <Image
               data={firstImage}
-              className="max-w-full max-h-full w-full h-full object-contain"
+              className="max-w-full max-h-full w-full h-full object-cover"
               sizes="100vw"
             />
           </div>
         )}
-        <h1>{firstCollection.title}</h1>
+        <h1 className="font-display text-start my-2">
+          {firstCollection.title}
+        </h1>
       </Link>
       <Link
         className="hidden md:flex flex-col items-center justify-center w-full max-h-screen h-full"
@@ -118,12 +123,14 @@ function FeaturedCollection({
           <div className="max-w-full w-full max-h-full h-full">
             <Image
               data={secondImage}
-              className="max-w-full max-h-full w-full h-full object-contain"
+              className="max-w-full max-h-full w-full h-full object-cover"
               sizes="100vw"
             />
           </div>
         )}
-        <h1>{secondCollection.title}</h1>
+        <h1 className="font-display text-start my-2">
+          {secondCollection.title}
+        </h1>
       </Link>
     </div>
   );
@@ -136,7 +143,7 @@ function RecommendedProducts({
 }) {
   return (
     <div className="recommended-products">
-      <h2 className="text-lg md:text-2xl font-display">Recommended Products</h2>
+      <h2 className="text-lg md:text-xl font-display">Recommended Products</h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
           {(response) => (
@@ -156,6 +163,62 @@ function RecommendedProducts({
       </Suspense>
       <br />
     </div>
+  );
+}
+
+function CoolText() {
+  return (
+    <div className="flex flex-row justify-center items-center h-full w-full">
+      <Trail>
+        <span>A</span>
+        <span>b</span>
+        <span>s</span>
+        <span>t</span>
+        <span>r</span>
+        <span>a</span>
+        <span>k</span>
+        <span>c</span>
+        <span>t</span>
+      </Trail>
+    </div>
+  );
+}
+
+function Trail({children}: {children: React.ReactNode}) {
+  const [ref, inView] = useInView({
+    amount: 0.5,
+  });
+  const items = Children.toArray(children);
+  const trail = useTrail(items.length, {
+    from: {
+      rotateY: -180,
+    },
+    to: {
+      rotateY: inView ? 0 : -180,
+    },
+    config: {
+      mass: 1,
+      tension: 420,
+      friction: 32,
+    },
+  });
+  const ids = useStableIds(items.length);
+
+  return (
+    <h1 ref={ref} className="font-display text-start my-8 md:m-0">
+      {trail.map((props, index) => (
+        <animated.span
+          key={ids[index]}
+          style={{
+            ...props,
+            textTransform: 'uppercase',
+          }}
+          className="inline-block text-zinc-800 text-[16.1vw] sm:text-[16.8vw] md:text-[16.9vw]"
+        >
+          {items[index]}
+        </animated.span>
+      ))}
+    </h1>
   );
 }
 
