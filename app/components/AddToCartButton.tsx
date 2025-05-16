@@ -1,8 +1,6 @@
-import {useNavigate, type FetcherWithComponents} from '@remix-run/react';
+import {type FetcherWithComponents} from '@remix-run/react';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
-import {useAside} from './Aside';
 import {useState} from 'react';
-import {useScroll} from '@react-spring/web';
 
 export function AddToCartButton({
   analytics,

@@ -4,7 +4,6 @@ import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated} from '@react-spring/web';
 import {aspectRatio} from '~/lib/utils/utils';
 import Spinner from './Spinner';
-import { useAside } from './Aside';
 
 export default function ProductGrid<NodesType>({
   connection,

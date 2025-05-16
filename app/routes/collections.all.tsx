@@ -1,8 +1,6 @@
 import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, Link, type MetaFunction} from '@remix-run/react';
-import {getPaginationVariables, Image, Money} from '@shopify/hydrogen';
-import type {ProductItemFragment} from 'storefrontapi.generated';
-import {useVariantUrl} from '~/lib/variants';
+import {useLoaderData, type MetaFunction} from '@remix-run/react';
+import {getPaginationVariables} from '@shopify/hydrogen';
 import ProductGrid from '~/components/ProductGrid';
 
 export const meta: MetaFunction<typeof loader> = () => {
@@ -15,8 +13,6 @@ export async function loader(args: LoaderFunctionArgs) {
 
   // Await the critical data required to render initial state of the page
   const criticalData = await loadCriticalData(args);
-
-  console.log('Critical Data', criticalData);
 
   return {...deferredData, ...criticalData};
 }
@@ -46,8 +42,6 @@ async function loadCriticalData({context, request}: LoaderFunctionArgs) {
       }),
     ]);
 
-  console.log('Products Paginated From Collection', paginatedProducts);
-
   return {
     products: nonPaginatedProducts.nodes,
     productsPaginated: paginatedProducts,
@@ -65,8 +59,6 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Collection() {
   const {products, productsPaginated} = useLoaderData<typeof loader>();
-
-  console.log('Products Paginated From Collection', productsPaginated);
 
   return (
     <div className="collection">
