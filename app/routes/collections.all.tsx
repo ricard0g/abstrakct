@@ -1,5 +1,5 @@
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, type MetaFunction} from '@remix-run/react';
+import {type LoaderFunctionArgs, type ActionFunctionArgs} from '@shopify/remix-oxygen';
+import {useFetcher, useLoaderData, type MetaFunction} from '@remix-run/react';
 import {getPaginationVariables} from '@shopify/hydrogen';
 import ProductGrid from '~/components/ProductGrid';
 
@@ -8,6 +8,12 @@ export const meta: MetaFunction<typeof loader> = () => {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
+  const {request, context} = args;
+  const {storefront} = context;
+  const url = new URL(request.url);
+  const searchParams = url.searchParams;
+  const filters = [];
+  
   // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);
 
@@ -66,6 +72,19 @@ export default function Collection() {
       <ProductGrid connection={productsPaginated} />
     </div>
   );
+}
+
+function FilterProducts() {
+  const fetcher = useFetcher();
+
+  return (
+    <div>
+      <span>Filter:</span>
+      <fetcher.Form method="GET">
+
+      </fetcher.Form>
+    </div>
+  )
 }
 
 const ALL_PRODUCTS_QUERY_PAGINATED = `#graphql
