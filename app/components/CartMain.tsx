@@ -33,7 +33,7 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
       <CartEmpty hidden={linesCount} layout={layout} />
       <div className="cart-details">
         <div aria-labelledby="cart-lines">
-          <ul className='overflow-y-scroll max-h-[60vh]'>
+          <ul className='cart-lines overflow-y-scroll max-h-[40vh] md:max-h-[60vh]'>
             {(cart?.lines?.nodes ?? []).map((line) => (
               <CartLineItem key={line.id} line={line} layout={layout} />
             ))}

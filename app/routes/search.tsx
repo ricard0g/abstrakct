@@ -41,20 +41,21 @@ export default function SearchPage() {
 
   return (
     <div className="search">
-      <h1>Search</h1>
+      <h1 className='text-3xl font-display mb-4'>Search</h1>
       <SearchForm>
         {({inputRef}) => (
-          <>
+          <div className='flex items-center gap-x-2'>
             <input
               defaultValue={term}
               name="q"
               placeholder="Search…"
               ref={inputRef}
               type="search"
+              className='search-page-input'
             />
             &nbsp;
-            <button type="submit">Search</button>
-          </>
+            <button className="bg-black/50 text-white px-4 py-2 rounded-md hover:bg-black/70" type="submit">Search</button>
+          </div>
         )}
       </SearchForm>
       {error && <p style={{color: 'red'}}>{error}</p>}

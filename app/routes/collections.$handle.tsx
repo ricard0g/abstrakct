@@ -9,6 +9,8 @@ import {
 import type {ProductItemFragment} from 'storefrontapi.generated';
 import {useVariantUrl} from '~/lib/variants';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
+import {aspectRatio} from '~/lib/utils/utils';
+import {useMemo} from 'react';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Hydrogen | ${data?.collection.title ?? ''} Collection`}];
@@ -75,8 +77,12 @@ export default function Collection() {
 
   return (
     <div className="collection">
-      <h1>{collection.title}</h1>
-      <p className="collection-description">{collection.description}</p>
+      <h1 className="text-4xl text-center font-display mt-8 md:my-4">
+        {collection.title}
+      </h1>
+      <p className="collection-description leading-10 tracking-wider text-lg md:text-xl font-thin text-center">
+        {collection.description}
+      </p>
       <PaginatedResourceSection
         connection={collection.products}
         resourcesClassName="products-grid"
@@ -108,6 +114,14 @@ function ProductItem({
   product: ProductItemFragment;
   loading?: 'eager' | 'lazy';
 }) {
+  const isWideImage = useMemo(
+    () =>
+      aspectRatio(
+        product.featuredImage?.width ?? 0,
+        product.featuredImage?.height ?? 0,
+      ) > 1.5,
+    [product.featuredImage?.width, product.featuredImage?.height],
+  );
   const variantUrl = useVariantUrl(product.handle);
   return (
     <Link
@@ -119,14 +133,17 @@ function ProductItem({
       {product.featuredImage && (
         <Image
           alt={product.featuredImage.altText || product.title}
-          aspectRatio="1/1"
           data={product.featuredImage}
           loading={loading}
           sizes="(min-width: 45em) 400px, 100vw"
+          style={{
+            width: isWideImage ? '100%' : '60%',
+            margin: 'auto',
+          }}
         />
       )}
-      <h4>{product.title}</h4>
-      <small>
+      <h4 className="text-center">{product.title}</h4>
+      <small className="text-center">
         <Money data={product.priceRange.minVariantPrice} />
       </small>
     </Link>

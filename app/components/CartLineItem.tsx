@@ -72,13 +72,14 @@ function CartLineQuantity({line}: {line: CartLine}) {
 
   return (
     <div className="cart-line-quantity">
-      <small>Quantity: {quantity} &nbsp;&nbsp;</small>
+      <small className='text-base my-2'>Quantity: {quantity} &nbsp;&nbsp;</small>
       <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
         <button
           aria-label="Decrease quantity"
           disabled={quantity <= 1 || !!isOptimistic}
           name="decrease-quantity"
           value={prevQuantity}
+          className='my-2 ml-3 bg-black/50 text-xs md:text-base text-white px-3 py-1 rounded-md hover:bg-black/70'
         >
           <span>&#8722; </span>
         </button>
@@ -90,6 +91,7 @@ function CartLineQuantity({line}: {line: CartLine}) {
           name="increase-quantity"
           value={nextQuantity}
           disabled={!!isOptimistic}
+          className='my-2 mr-1 bg-black/50 text-xs md:text-base text-white px-3 py-1 rounded-md hover:bg-black/70'
         >
           <span>&#43;</span>
         </button>
@@ -118,8 +120,8 @@ function CartLineRemoveButton({
       action={CartForm.ACTIONS.LinesRemove}
       inputs={{lineIds}}
     >
-      <button disabled={disabled} type="submit">
-        Remove
+      <button disabled={disabled} type="submit" className='my-2 mx-1 bg-black/50 text-xs md:text-base text-white px-3 py-1 rounded-md hover:bg-black/70'>
+        Remove Ｘ
       </button>
     </CartForm>
   );

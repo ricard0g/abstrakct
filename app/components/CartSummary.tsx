@@ -15,10 +15,10 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 
   return (
     <div aria-labelledby="cart-summary" className={className}>
-      <h4>Totals</h4>
+      <h4 className='text-base md:text-lg font-bold'>Totals</h4>
       <dl className="cart-subtotal">
-        <dt>Subtotal</dt>
-        <dd>
+        <dt className='text-base md:text-lg'>Subtotal</dt>
+        <dd className='text-base md:text-lg'>
           {cart.cost?.subtotalAmount?.amount ? (
             <Money data={cart.cost?.subtotalAmount} />
           ) : (
@@ -37,8 +37,8 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
 
   return (
     <div>
-      <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
+      <a href={checkoutUrl} target="_self" >
+        <p className='inline-block bg-black/50 text-white px-3 py-1 rounded-md hover:bg-black/70'>Continue to Checkout &rarr;</p>
       </a>
       <br />
     </div>
@@ -74,7 +74,7 @@ function CartDiscounts({
       {/* Show an input to apply a discount */}
       <UpdateDiscountForm discountCodes={codes}>
         <div>
-          <input type="text" name="discountCode" placeholder="Discount code" />
+          <input type="text" name="discountCode" placeholder="Discount code"  />
           &nbsp;
           <button type="submit">Apply</button>
         </div>

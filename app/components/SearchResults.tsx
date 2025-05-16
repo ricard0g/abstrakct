@@ -1,5 +1,6 @@
 import {Link} from '@remix-run/react';
 import {Image, Money, Pagination} from '@shopify/hydrogen';
+import {useResponsive} from '~/lib/hooks/useResponsive';
 import {urlWithTrackingParams, type RegularSearchReturn} from '~/lib/search';
 
 type SearchItems = RegularSearchReturn['result']['items'];
@@ -97,13 +98,15 @@ function SearchResultsProducts({
   term,
   products,
 }: PartialSearchResult<'products'>) {
+  const {isMobile} = useResponsive();
+
   if (!products?.nodes.length) {
     return null;
   }
 
   return (
     <div className="search-result">
-      <h2>Products</h2>
+      <h2 className='text-lg font-display'>Products</h2>
       <Pagination connection={products}>
         {({nodes, isLoading, NextLink, PreviousLink}) => {
           const ItemsMarkup = nodes.map((product) => {
@@ -120,11 +123,11 @@ function SearchResultsProducts({
               <div className="search-results-item" key={product.id}>
                 <Link prefetch="intent" to={productUrl}>
                   {image && (
-                    <Image data={image} alt={product.title} width={50} />
+                    <Image data={image} alt={product.title} className='object-contain' width={isMobile ? 150 : 300} />
                   )}
-                  <div>
-                    <p>{product.title}</p>
-                    <small>{price && <Money data={price} />}</small>
+                  <div className='flex flex-col gap-y-3'>
+                    <p className='text-lg md:text-2xl'>{product.title}</p>
+                    <small className='text-base md:text-lg'>{price && <Money data={price} />}</small>
                   </div>
                 </Link>
               </div>
@@ -135,16 +138,16 @@ function SearchResultsProducts({
             <div>
               <div>
                 <PreviousLink>
-                  {isLoading ? 'Loading...' : <span>↑ Load previous</span>}
+                  {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>↑ Load previous</span>}
                 </PreviousLink>
               </div>
               <div>
                 {ItemsMarkup}
                 <br />
               </div>
-              <div>
-                <NextLink>
-                  {isLoading ? 'Loading...' : <span>Load more ↓</span>}
+              <div className='flex justify-center md:justify-start'>
+                <NextLink className='md:ml-8'>
+                  {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>Load more ↓</span>}
                 </NextLink>
               </div>
             </div>
