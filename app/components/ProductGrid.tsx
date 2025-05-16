@@ -4,6 +4,7 @@ import {useState, useRef, useEffect, useMemo, useCallback} from 'react';
 import {useSpring, animated} from '@react-spring/web';
 import {aspectRatio} from '~/lib/utils/utils';
 import Spinner from './Spinner';
+import { useAside } from './Aside';
 
 export default function ProductGrid<NodesType>({
   connection,
@@ -15,20 +16,32 @@ export default function ProductGrid<NodesType>({
       {({nodes, isLoading, PreviousLink, NextLink}) => {
         return (
           <div className="grid grid-cols-2 md:grid-cols-3 auto-rows-auto gap-4 md:gap-10 place-items-center">
-            <PreviousLink className='flex justify-center items-center col-span-3 w-full'>
-              {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>↑ Load previous</span>}
+            <PreviousLink className="flex justify-center items-center col-span-3 w-full">
+              {isLoading ? (
+                'Loading...'
+              ) : (
+                <span className="bg-black/50 text-white px-4 py-2 rounded-md">
+                  ↑ Load previous
+                </span>
+              )}
             </PreviousLink>
             {nodes.map((node, index) => (
               <ProductItem key={index} product={node} />
             ))}
-            <NextLink className='flex justify-center items-center col-span-3 w-full'>
-              {isLoading ? 'Loading...' : <span className='bg-black/50 text-white px-4 py-2 rounded-md'>Load more ↓</span>}
+            <NextLink className="flex justify-center items-center col-span-3 w-full">
+              {isLoading ? (
+                'Loading...'
+              ) : (
+                <span className="bg-black/50 text-white px-4 py-2 rounded-md">
+                  Load more ↓
+                </span>
+              )}
             </NextLink>
           </div>
-        )
+        );
       }}
     </Pagination>
-  )
+  );
 }
 
 function ProductItem({product}: {product: any}) {
@@ -61,7 +74,7 @@ function ProductItem({product}: {product: any}) {
         isWideImage ? 'md:col-span-2' : 'md:col-span-1'
       }`}
     >
-      <figure className="w-full h-full m-0 relative">
+      <figure className="relative w-full h-full m-0">
         <Link to={`/products/${product.handle}`}>
           {!imageLoaded && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
@@ -95,6 +108,8 @@ function ParallaxCaption({product}: {product: any}) {
   const [coords, setCoords] = useState({x: 0, y: 0});
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // const {type} = useAside();
+  // console.log(type);
 
   // Check if device is mobile
   useEffect(() => {
@@ -127,7 +142,7 @@ function ParallaxCaption({product}: {product: any}) {
   const desktopCaptionSpring = useSpring({
     opacity: hovered ? 1 : 0,
     transform: hovered
-      ? `perspective(800px) rotateX(${-coords.y * 20}deg) rotateY(${coords.x * 20}deg) translateZ(30px)`
+      ? `perspective(800px) rotateX(${-coords.y * 20}deg) rotateY(${coords.x * 20}deg) translateZ(50px)`
       : 'perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)',
     config: {mass: 1, tension: 280, friction: 60},
   });
@@ -157,7 +172,7 @@ function ParallaxCaption({product}: {product: any}) {
       {/* Desktop caption with parallax effect */}
       <animated.figcaption
         style={desktopCaptionSpring}
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:block hidden z-10"
+        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm p-4 rounded-lg shadow-lg min-w-72 max-w-2/5 md:block hidden"
       >
         <h2 className="text-center text-balance font-display font-bold text-white">
           {product.title}
