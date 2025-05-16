@@ -250,8 +250,24 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .cart-lines {
-  @media (min-height: 800px) {
+  max-height: 40vh;
+}
+
+@media only screen and (min-height: 800px) {
+  .cart-lines {
     max-height: 50vh;
+  }
+}
+
+@media only screen and (min-height: 900px) {
+  .cart-lines {
+    max-height: 55vh;
+  }
+}
+
+@media only screen and (min-height: 950px) {
+  .cart-lines {
+    max-height: 60vh;
   }
 }
 

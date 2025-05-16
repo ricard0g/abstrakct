@@ -111,7 +111,7 @@ function FeaturedCollection({
             />
           </div>
         )}
-        <h1 className="font-display text-start my-2">
+        <h1 className="w-full font-display text-start md:text-center my-2">
           {firstCollection.title}
         </h1>
       </Link>
