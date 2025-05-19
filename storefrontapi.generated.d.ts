@@ -612,6 +612,24 @@ export type StoreCollectionsQuery = {
   };
 };
 
+export type GetAllFacetsQueryVariables = StorefrontAPI.Exact<{
+  [key: string]: never;
+}>;
+
+export type GetAllFacetsQuery = {
+  collection?: StorefrontAPI.Maybe<{
+    products: {
+      filters: Array<
+        Pick<StorefrontAPI.Filter, 'id' | 'label' | 'type'> & {
+          values: Array<
+            Pick<StorefrontAPI.FilterValue, 'id' | 'label' | 'count' | 'input'>
+          >;
+        }
+      >;
+    };
+  }>;
+};
+
 export type GetAllProductsPaginatedQueryVariables = StorefrontAPI.Exact<{
   first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
@@ -624,61 +642,37 @@ export type GetAllProductsPaginatedQueryVariables = StorefrontAPI.Exact<{
 }>;
 
 export type GetAllProductsPaginatedQuery = {
-  products: {
-    nodes: Array<
-      Pick<StorefrontAPI.Product, 'description' | 'handle' | 'id' | 'title'> & {
-        featuredImage?: StorefrontAPI.Maybe<
-          Pick<
-            StorefrontAPI.Image,
-            'altText' | 'id' | 'url' | 'height' | 'width'
-          >
-        >;
-        priceRange: {
-          minVariantPrice: Pick<
-            StorefrontAPI.MoneyV2,
-            'amount' | 'currencyCode'
+  collection?: StorefrontAPI.Maybe<{
+    products: {
+      nodes: Array<
+        Pick<
+          StorefrontAPI.Product,
+          'description' | 'handle' | 'id' | 'title'
+        > & {
+          featuredImage?: StorefrontAPI.Maybe<
+            Pick<
+              StorefrontAPI.Image,
+              'altText' | 'id' | 'url' | 'height' | 'width'
+            >
           >;
-          maxVariantPrice: Pick<
-            StorefrontAPI.MoneyV2,
-            'amount' | 'currencyCode'
-          >;
-        };
-      }
-    >;
-    pageInfo: Pick<
-      StorefrontAPI.PageInfo,
-      'hasNextPage' | 'hasPreviousPage' | 'startCursor' | 'endCursor'
-    >;
-  };
-};
-
-export type GetAllNonPaginatedProductsQueryVariables = StorefrontAPI.Exact<{
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
-}>;
-
-export type GetAllNonPaginatedProductsQuery = {
-  products: {
-    nodes: Array<
-      Pick<StorefrontAPI.Product, 'description' | 'handle' | 'id' | 'title'> & {
-        featuredImage?: StorefrontAPI.Maybe<
-          Pick<
-            StorefrontAPI.Image,
-            'altText' | 'id' | 'url' | 'height' | 'width'
-          >
-        >;
-        priceRange: {
-          minVariantPrice: Pick<
-            StorefrontAPI.MoneyV2,
-            'amount' | 'currencyCode'
-          >;
-          maxVariantPrice: Pick<
-            StorefrontAPI.MoneyV2,
-            'amount' | 'currencyCode'
-          >;
-        };
-      }
-    >;
-  };
+          priceRange: {
+            minVariantPrice: Pick<
+              StorefrontAPI.MoneyV2,
+              'amount' | 'currencyCode'
+            >;
+            maxVariantPrice: Pick<
+              StorefrontAPI.MoneyV2,
+              'amount' | 'currencyCode'
+            >;
+          };
+        }
+      >;
+      pageInfo: Pick<
+        StorefrontAPI.PageInfo,
+        'hasNextPage' | 'hasPreviousPage' | 'startCursor' | 'endCursor'
+      >;
+    };
+  }>;
 };
 
 export type PageQueryVariables = StorefrontAPI.Exact<{
@@ -1289,7 +1283,7 @@ interface GeneratedQueryTypes {
     return: StoreRobotsQuery;
     variables: StoreRobotsQueryVariables;
   };
-  '#graphql\n  fragment FeaturedCollection on Collection {\n    id\n    title\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    handle\n  }\n  query FeaturedCollection($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collections(first: 2, sortKey: UPDATED_AT, reverse: true) {\n      nodes {\n        ...FeaturedCollection\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment FeaturedCollection on Collection {\n    id\n    title\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    handle\n  }\n  query FeaturedCollection($country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collections(first: 2, sortKey: TITLE, reverse: true) {\n      nodes {\n        ...FeaturedCollection\n      }\n    }\n  }\n': {
     return: FeaturedCollectionQuery;
     variables: FeaturedCollectionQueryVariables;
   };
@@ -1321,13 +1315,13 @@ interface GeneratedQueryTypes {
     return: StoreCollectionsQuery;
     variables: StoreCollectionsQueryVariables;
   };
-  '#graphql\n  query getAllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n        }       \n      }\n      pageInfo {\n        hasNextPage\n        hasPreviousPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n': {
+  '#graphql\n  query getAllFacets {\n    collection(handle: "all") {\n      products(first: 1) {\n        filters {\n          id\n          label\n          type\n          values {\n            id\n            label\n            count\n            input\n          }\n        }\n      }\n    }\n  }\n': {
+    return: GetAllFacetsQuery;
+    variables: GetAllFacetsQueryVariables;
+  };
+  '#graphql\n  query getAllProductsPaginated($first: Int, $last: Int, $startCursor: String, $endCursor: String) {\n    collection(handle: "all") {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n            maxVariantPrice {\n              amount\n              currencyCode\n            }\n        }       \n      }\n      pageInfo {\n        hasNextPage\n        hasPreviousPage\n        startCursor\n        endCursor\n      }\n    }\n    }\n  }\n': {
     return: GetAllProductsPaginatedQuery;
     variables: GetAllProductsPaginatedQueryVariables;
-  };
-  '#graphql\n  query getAllNonPaginatedProducts($first: Int) {\n    products(first: $first) {\n      nodes {\n          description\n          featuredImage {\n            altText\n            id\n            url\n            height\n            width\n          }\n          handle\n          id\n          title\n          priceRange {\n            minVariantPrice {\n              amount\n              currencyCode\n          }\n              maxVariantPrice {\n                amount\n                currencyCode\n              }\n        }       \n      }\n    }\n  }': {
-    return: GetAllNonPaginatedProductsQuery;
-    variables: GetAllNonPaginatedProductsQueryVariables;
   };
   '#graphql\n  query Page(\n    $language: LanguageCode,\n    $country: CountryCode,\n    $handle: String!\n  )\n  @inContext(language: $language, country: $country) {\n    page(handle: $handle) {\n      id\n      title\n      body\n      seo {\n        description\n        title\n      }\n    }\n  }\n': {
     return: PageQuery;
