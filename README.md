@@ -43,8 +43,8 @@ Built with:
 - [Remix](https://remix.run/) – for routes smoother than a fresh canvas
 - [Tailwindcss](https://tailwindcss.com/) – because style matters
 - [TypeScript](https://www.typescriptlang.org/) – for code that behaves
-- [react-spring](https://www.react-spring.dev/) – for animations that don't just move, they dance
-- [Netlify](https://www.netlify.com/) – because deploying should be as easy as hanging a painting (and yes, there were a few hoops to jump through)
+- [react-spring](https://www.react-spring.dev/) – for animations that don't just move, and also supports SSR
+- [Netlify](https://www.netlify.com/) – crucial part of the development of the project, deploying should be easy but sometimes it just insn't (and yes, there were a few hoops to jump through)
 
 ## Experience **Abstrakct**! 🏁
 
