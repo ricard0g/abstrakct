@@ -37,17 +37,18 @@ async function loadCriticalData({context, request}: LoaderFunctionArgs) {
     pageBy: 6,
   });
 
-  const [{collection: collectionData}, {collection: facetsData}] = await Promise.all([
-    storefront.query(ALL_PRODUCTS_QUERY_PAGINATED, {
-      variables: paginationVariables,
-    }),
-    storefront.query(FACETS_QUERY),
-  ]);
+  const [{collection: collectionData}, {collection: facetsData}] =
+    await Promise.all([
+      storefront.query(ALL_PRODUCTS_QUERY_PAGINATED, {
+        variables: paginationVariables,
+      }),
+      storefront.query(FACETS_QUERY),
+    ]);
 
   if (!collectionData) {
     throw new Response('Not Found', {status: 404});
   }
-  
+
   console.log(facetsData?.products.filters);
 
   return {
