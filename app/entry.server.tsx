@@ -17,7 +17,7 @@ export default async function handleRequest(
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
-    styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+    styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://fonts.gstatic.com', "'unsafe-inline'"],
     fontSrc: [
       "'self'",
       'https://fonts.googleapis.com',
